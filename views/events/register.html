@@ -1,0 +1,201 @@
+{{
+  last_iteration = True if row == rows[-1] else False
+}}
+<tr 
+  class="text-{{='muted' if row.is_active == False else 'default'}}" 
+  {{ if last_iteration: }}
+    hx-get="{{=URL('events', 'infinite_scroll', vars={'evenid': event.id, 'page': page + 1, 'term': term})}}" 
+    hx-trigger="revealed" 
+    hx-swap="afterend"
+    hx-target="this"
+  {{ pass }}
+>
+  <td>
+    <div class="row" style="min-height: 5rem;">
+
+      <div class="col-sm-6">
+
+        <div class="text-{{= 'default' if row.is_active == True else 'muted' }}" id="identification">
+          <strong class="h5">{{= shortname(row.guest_name) }}</strong>
+          {{ if row.is_active == False: }}
+            &nbsp;&nbsp; <span class="badge bg-secondary">cancelado</span>
+          {{ pass }}
+
+          {{ if row.age: }}
+            {{
+              age_label = 'success'
+              if row.age > 35 and row.age < 60: 
+                age_label='warning' 
+              elif row.age>= 60:
+                age_label = 'danger'
+              pass
+            }}
+            <span class="badge bg-{{= age_label }} float-end mt-1">
+              <strong>{{= row.age }}</strong>
+            </span>
+          {{ pass }}
+
+          {{ if row.no_stairs: }}
+            <img 
+              class="float-end me-2" 
+              src="{{= URL('static', 'images/bedicons', args='NoStairs.png') }}" 
+            >
+          {{ pass }}
+
+          {{ if row.no_top_bunk: }}
+            <img 
+              class="float-end me-2" 
+              src="{{= URL('static', 'images/bedicons', args='NoTopBunks.png') }}" 
+            >
+          {{ pass }}
+          
+        </div>
+
+        <div id="lodge">
+          <span class="badge bg-{{= 'primary' if row.is_active else 'secondary' }}">
+            {{= LODGE_TYPES[row.lodge] }}
+          </span>
+
+          {{ if row.lodge == 'LDG' and row.bedroom != 'unalloc': }}
+            <span class="text-{{= 'primary' if row.is_active else 'secondary' }}">
+              &nbsp; {{= row.bedroom_name }} - {{= row.bedroom_building }}
+            </span>
+          {{ elif row.lodge == 'LDG' and row.bedroom == 'unalloc': }}
+            <span class="text-{{= 'primary' if row.is_active else 'secondary' }}">
+              &nbsp; [ não alojado(a) ]
+            </span>
+          {{ pass }}
+
+        </div>
+
+        <div class="text-danger mt-1" style="font-size: 10pt; padding-top: 8px;">
+          {{ if row.ps: }}
+            <span 
+              id="staff"
+              data-bs-toggle="tooltip" 
+              data-bs-placement="top" 
+              data-bs-container="body"
+              title="{{=row.ps}}" style="font-style: italic;"
+            >
+              obs: {{= row.ps[:30] }}{{ if len(row.ps) > 30: }} ... {{ pass }}
+            </span>
+          {{pass}}
+        </div>
+
+      </div>
+
+      <div class="col-sm-4 fs-6">
+
+        <div class="fs-5 mt-1" id="arrive">
+          <span class="text-{{= 'default' if row.is_active == True else 'muted' }}">
+            <em>{{= ARRIVAL_DATE[row.arrival_date]}}, {{=ARRIVAL_TIME[row.arrival_time] }}</em>
+          </span>
+        </div>
+
+        <div class="mt-2" id="staff">
+          {{if row.staff:}}
+            <span class="badge  bg-secondary">
+              {{= STAFFS[row.staff] }}
+            </span>
+            {{ if row.description: }}
+              <span 
+                class="text-secondary" 
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                data-bs-container="body"
+                title="{{= row.description }}"
+              >
+                &nbsp;&nbsp;{{= row.description[:30] }}{{ if len(row.description) > 30: }} ... {{ pass }}
+              </span>
+            {{ pass }}
+          {{ pass }}
+        </div>
+
+      </div>
+
+      <div class="col-sm-2">
+
+        <div 
+          class="text-{{= 'default' if row.is_active else 'muted' }} text-end h4 mt-1"
+          id="amount"
+        >
+          {{ if row.late: }}
+            <i class="h6 bi bi-clock text-{{='danger' if row.is_active else 'muted'}} text-end align-middle me-1"></i>
+          {{pass}}
+          <strong>R$ {{=row.amount}}</strong>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="btn-group btn-group-sm float-end" role="group" id="buttons">
+
+          {{ if not view_credits and row.is_active: }}
+            {{ if row.lodge == 'LDG' and admin_view: }}
+              <button 
+                type="button" 
+                class="btn btn-outline-success" 
+                data-toggle="modal" 
+                data-target="#confirm"
+                onclick="getBedroom({{= row.id }},{{= event.id }});"
+              >
+                <i class="bi bi-building"></i>
+              </button>
+            {{pass}}
+          {{pass}}
+
+          <button 
+            type="button" 
+            class="btn btn-outline-{{= 'info' if row.is_active else 'default' }}"
+            data-bs-toggle="modal" 
+            data-bs-target="#confirm" 
+            hx-trigger="click"
+            hx-get="{{=URL('reports', 'register_info')}}/{{= row.id }}" 
+            hx-target="#modalContent" 
+          >
+            <i class="bi bi-eye"></i>
+          </button>
+
+          {{ if event.status=='OPN': }}
+            {{ if not view_credits and row.is_active: }}
+              <a 
+                type="button" 
+                class="btn btn-outline-{{= 'warning' if row.is_active else 'default' }}"
+                href="{{= URL('register', 'edit_stay', vars={'regid':row.id}) }}" 
+                target="_self"
+              >
+               <i class="bi bi-pencil"></i>
+              </a>
+            {{ pass }}
+
+            {{ if not view_credits and (auth.has_membership('root') or auth.has_membership('admin')): }}
+              <button 
+                type="button" 
+                class="btn btn-outline-{{= 'danger' if row.is_active else 'default' }}"
+                data-toggle="modal" 
+                data-target="#confirm" 
+                onclick="unEnrollVerify({{= row.id }});"
+              >
+                <i class="bi bi-{{= 'trash' if row.is_active else 'box-arrow-in-right' }}"></i>
+              </button>
+            {{pass}}
+
+          {{ elif auth.has_membership('root') or (auth.has_membership('admin') and auth.user.center == event.center.id): }}
+            {{ if not view_credits and row.is_active: }}
+              <a 
+                type="button" 
+                class="btn btn-{{= 'warning' if row.is_active else 'default' }}"
+                href="{{= URL('register', 'edit_stay', vars={'regid':row.regid}) }}" 
+                target="_self"
+              >
+               <i class="bi bi-pencil"></i>
+              </a>
+            {{ pass }}
+          {{ pass }}
+
+        </div>
+
+      </div>
+
+    </div>
+  </td>
+</tr>

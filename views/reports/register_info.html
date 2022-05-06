@@ -1,0 +1,58 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{= title }}</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+  <div class="d-flex justify-content-between">
+    <div><em>{{= T("registered by") }}</em>:<br> <strong>{{= registered_by }}</strong></div>
+    <div><em>{{= T("registered on") }}</em>:<br> <strong>{{= registered_on }}</strong></div>
+    <div class="text-end"><em>{{= T("register") }}</em>:<br> <strong>{{= register }}</strong></div>
+  </div>
+  <hr>
+  <!-- guests -->
+  <table class="table table-sm">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>{{= T("guest") }}</th>
+        <th>{{= T("value $") }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ for row in guests: }}
+      <tr>
+        <td>{{= row['num'] }}</td>
+        <td>{{= row['name'] }}</td>
+        <td>{{= row['amount'] }}</td>
+      </tr>
+      {{ pass }}
+    </tbody>
+  </table>
+  <!-- payfoms -->
+  <table class="table table-sm">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>{{= T("type") }}</th>
+        <th>{{= T("details") }}</th>
+        <th></th>
+        <th>{{= T("value $") }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ for row in pays: }}
+      <tr>
+        <td>{{= row['num'] }}</td>
+        <td>{{= row['pay_type'] }}</td>
+        <td>{{= row['bf_name'] }}</td>
+        <td>{{= row['num_ctrl'] }}</td>
+        <td>{{= row['amount'] }}</td>
+      </tr>
+      {{ pass }}
+    </tbody>
+  </table>
+
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+</div>

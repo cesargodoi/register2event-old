@@ -1,0 +1,169 @@
+<div class="accordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button 
+        class="accordion-button collapsed sidebar-heading px-3 text-muted" 
+        type="button" 
+        data-bs-toggle="collapse" 
+        data-bs-target="#collapseOne" 
+        aria-expanded="true" 
+        aria-controls="collapseOne"
+      >
+        <span>{{=T('reports')}}</span>
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <ul class="nav flex-column mb-2">
+          {{ if event_records > 0: }}
+
+            <li class="dropdown-header">{{=T('regular payments')}}</li>
+
+            <li class="nav-item">
+              <a 
+                class="nav-link" 
+                href="{{=URL('reports', 'cash_balance', vars={'evenid':event.id})}}" 
+                target="_blank"
+              >
+                <i class="bi bi-file-spreadsheet"></i>
+                {{=T('cash balance')}}
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a 
+                class="nav-link" 
+                href="{{=URL('reports', 'payment_by_guest', vars={'evenid':event.id})}}" 
+                target="_blank"
+              >
+                <i class="bi bi-file-spreadsheet"></i>
+                {{=T('payment by guest')}}
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a 
+                class="nav-link" 
+                href="{{=URL('reports', 'total_by_center', vars={'evenid':event.id})}}" 
+                target="_blank"
+              >
+                <i class="bi bi-file-spreadsheet"></i>
+                {{=T('total by center')}}
+              </a>
+            </li>
+
+            {{ if lates: }}
+
+              <li class="dropdown-header">{{=T('late payments')}}</li>
+
+              <li class="nav-item">
+                <a 
+                  class="nav-link" 
+                  href="{{=URL('reports', 'cash_balance', vars={'evenid':event.id, 'late':True})}}" 
+                  target="_blank"
+                >
+                  <i class="bi bi-file-spreadsheet"></i>
+                  {{=T('cash balance')}}
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a 
+                  class="nav-link" 
+                  href="{{=URL('reports', 'payment_by_guest', vars={'evenid':event.id, 'late':True})}}" 
+                  target="_blank"
+                >
+                  <i class="bi bi-file-spreadsheet"></i>
+                  {{=T('payment by guest')}}
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a 
+                  class="nav-link" 
+                  href="{{=URL('reports', 'to_jarinu', vars={'evenid':event.id, 'late':True})}}" 
+                  target="_blank"
+                >
+                  <i class="bi bi-filetype-csv"></i>
+                  {{=T('to jarinu')}} (.csv)
+                </a>
+              </li>
+
+            {{ pass }} 
+
+            <li class="dropdown-header">{{=T('others')}}</li>
+
+            <li class="nav-item">
+              <a 
+                class="nav-link" 
+                href="{{=URL('reports', 'to_stn', vars={'evenid':event.id})}}" 
+                target="_blank"
+              >
+                <i class="bi bi-filetype-csv"></i>
+                {{=T('to STN')}} (.csv)
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a 
+              class="nav-link" 
+              href="{{=URL('reports', 'frequencies', vars={'evenid':event.id})}}" 
+              target="_blank"
+              >
+                <i class="bi bi-filetype-txt"></i>
+                {{=T('frequencies')}} (.txt)
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a 
+                class="nav-link" 
+                href="{{=URL('reports', 'pupils_guests_center', vars={'evenid':event.id})}}" 
+                target="_blank"
+              >
+                <i class="bi bi-file-spreadsheet"></i>
+                {{=T("pupil's guests")}}
+              </a>
+            </li>
+
+          {{ pass }}
+            
+          {{if event.status == 'OPN':}}
+
+            {{
+              if request.now > event.reg_deadline:
+                link_gencred = URL('register', 'register_step1', vars={
+                  'evenid':event.id, 
+                  'centid':event.center, 
+                  'gencredit':True,
+                  'late':True,
+                })
+              else:
+                link_gencred = URL('register', 'register_step1', vars={
+                  'evenid':event.id, 
+                  'centid':event.center, 
+                  'gencredit':True,
+                })
+              pass
+            }}
+
+            <li>
+              <br>
+              <center>
+                <button 
+                  type="button" 
+                  class="btn btn-outline-success me-1"
+                  onclick="window.open('{{=link_gencred}}', '_self')"
+                >
+                  <i class="bi bi-cash-coin"></i>
+                  {{=T('generate credit')}}
+                </button>
+              </center>
+            </li>
+          {{pass}}
+
+          </ul>
+      </div>
+    </div>
+  </div>
+</div>

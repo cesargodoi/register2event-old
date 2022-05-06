@@ -1,0 +1,67 @@
+<div class="row">
+  <div class="col-sm-4">
+    <table class="table table-sm">
+      <tr>
+        <td>dias do evento:</td>
+        <th>{{=period}}</th>
+      </tr>
+      <tr>
+        <td>inscrições até:</td>
+        <th>{{=event.reg_deadline.strftime('%d/%m/%y %H:%M')}}</th>
+      </tr>
+    </table>
+  </div>
+
+  <div class="col-sm-4">
+    <table class="table table-sm">
+      {{ if auth.has_membership('root') or (auth.has_membership('admin') and auth.user.center == event.center.id): }}
+        {{ if not admin_view: }}
+          <tr>
+            <td>total no evento:</td> 
+            <th>{{=total_registers}}</th>
+          </tr>
+          <tr>
+            <td>inscritos no núcleo:</td> 
+            <th>{{=event_records}}</th>
+          </tr>
+        {{ else: }}
+          <tr>
+            <td>inscritos no evento:</td> 
+            <th>{{=total_registers}}</th>
+          </tr>
+        {{ pass }}
+      {{ else: }}
+        </tr>
+          <td>total no evento:</td> 
+          <th>{{=total_registers}}</th>
+        <tr>
+        <tr>
+          <td>inscritos no núcleo:</td> 
+          <th>{{=event_records}}</th>
+        <tr>
+      {{ pass }}
+    </table>  
+  </div>
+
+  <div class="col-sm-4">
+    <table class="table table-sm">
+      <tr>
+        <td>{{=T('registration fee')}}:</td>
+        <th>${{=event.ref_value}}</th>
+      </tr>
+      {{ if not view_credits: }}
+        {{ if lates: }}
+          <tr>
+            <td>pós-pagamentos:</td> 
+            <th>{{=len(lates)}}</th>
+          </tr>
+        {{ pass }}
+      {{ else: }}
+        <tr>
+          <td>créditos antecipados:</td>
+          <th>{{=event_records}}</th>
+        </tr>
+      {{ pass }}
+    </table>  
+  </div>
+</div>

@@ -1,0 +1,48 @@
+{{ extend 'layout.html' }}
+
+
+{{ block header }}
+  <h2>{{= T('Guests') }}</h2>
+{{ end }}
+
+{{ block header_menu }}
+{{= search }}
+<div class="btn-group" role="group">
+  {{ if auth.has_membership('root') or auth.has_membership('admin') or auth.has_membership('office'): }}
+    <a href="{{=URL('new')}}" type="button" class="btn btn-outline-primary me-2">
+      <i class="bi bi-plus-lg"></i>
+      {{= T('Add') }}
+    </a>
+  {{pass}}
+  <a href="{{= URL('default', 'index') }}" type="button" class="btn btn-outline-info">
+    <i class="bi bi-chevron-left"></i>
+    {{= T('Back') }}
+  </a>
+</div>
+{{end}}
+
+<!-- define the paginator -->
+{{ block content }}
+  {{ if rows: }}
+    {{ _list = 'list' }}
+
+    <table class="table table-hover" id="guests">
+      {{ include 'guest/guests.html' }}
+    </table>
+
+  {{ else: }}
+
+    <div class="alert alert-warning">
+      <h4>Nenhum <b>{{= T('guest') }}</b> com "{{= term }}" no nome foi encontrado.</h4>
+    </div>
+
+  {{ pass }}
+{{ end }}
+
+{{ block scripts }}
+<script src="{{= URL('static','css/main.css') }}"></script>
+
+<script type="text/javascript">
+  function goBack() { history.go(-1) };
+</script>
+{{ end }}

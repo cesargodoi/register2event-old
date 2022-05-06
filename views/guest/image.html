@@ -1,0 +1,24 @@
+<center>
+  {{ 
+    if guest.gender=='M': 
+      _img = 'spm.png'
+    else:
+      _img = "spf.png"
+    pass
+  }}
+
+  <img style="width: 160px;" src="{{= URL('static', 'images', args=_img) }}">
+
+  {{ if guest.enrollment or guest.aspect: }}
+    <p class="h4">
+    {{ if guest.enrollment: }}
+      {{= guest.enrollment }} 
+    {{ pass }}
+    </p>
+    <p class="h5">
+    {{ if guest.aspect: }}
+      {{= ASPECTS[guest.aspect] }}
+    {{ pass }}
+    </p>
+  {{ pass }}
+  </center>

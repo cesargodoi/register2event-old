@@ -1,0 +1,38 @@
+{{ extend 'layout.html' }}
+
+{{ block header }}
+  <h3>{{= T('event') }} 
+    &nbsp;&nbsp;<small class="text-muted">{{=T('edit')}}</small>
+  </h3>
+{{ end }}
+
+{{ block header_menu }}
+  <div class="btn-group" role="group">
+    {{if auth.has_membership('root') or auth.has_membership('admin'):}}
+      <button type="button" class="btn btn-outline-danger" onclick="delEvent({{=event}});">
+        <i class="bi bi-trash"></i>
+          {{= T('Delete') }}
+      </button>
+    {{pass}}
+    <button type="button" class="btn btn-outline-info" onclick="goBack()">
+      <i class="bi bi-chevron-left"></i>
+        {{= T('Back') }}
+    </button>
+  </div>
+{{ end }}
+
+{{ block content }}
+  {{=form}}
+{{ end }}
+
+{{ block scripts }}
+  <script type="text/javascript">
+    function goBack() {history.go(-1)};
+
+    function delEvent(num){
+      if (confirm("{{=T('Are you sure')}}?")) {
+        ajax("{{=URL('events', 'delete')}}/"+num, [], ':eval');
+        }
+    };
+  </script>
+{{ end }}

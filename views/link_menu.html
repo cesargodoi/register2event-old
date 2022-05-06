@@ -1,0 +1,98 @@
+<div class="accordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button 
+        class="accordion-button sidebar-heading px-3 text-muted" 
+        type="button" 
+        data-bs-toggle="collapse" 
+        data-bs-target="#collapseOne" 
+        aria-expanded="false" 
+        aria-controls="collapseOne"
+      >
+        <span>{{=T('management')}}</span>
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{=URL('building', 'list_buildings')}}">
+              <i class="bi bi-building"></i> &nbsp;
+              {{=T('Accomodations')}}
+            </a>
+          </li>
+          <li class="divider"></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{=URL('reports', 'locate_payment_form')}}">
+              <i class="bi bi-search"></i> &nbsp;
+              {{=T('locate payment form')}}
+            </a>
+          </li>
+          {{if auth.has_membership('root'):}}
+          <li class="divider"></li>
+          <li class="nav-item">
+            <a class="nav-link text-warning" href="{{=URL('default', 'manage_center')}}">
+              <i class="bi bi-pencil-square"></i> &nbsp;
+              {{=T('centers')}}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-warning" href="{{=URL('default', 'manage_activities')}}">
+              <i class="bi bi-pencil-square"></i> &nbsp;
+              {{=T('activities')}}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-warning" href="{{=URL('default', 'manage_bank_flag')}}">
+              <i class="bi bi-pencil-square"></i> &nbsp;
+              {{=T('bank and flags')}}
+            </a>
+          </li>
+          <li class="divider"></li>
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="{{=URL('mapping', 'new_mapping')}}">
+              <i class="bi bi-pencil-square"></i> &nbsp;
+              {{=T('new accommodations mapping')}}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="{{=URL('default', 'adj_bedroom_alt')}}">
+              <i class="bi bi-pencil-square"></i> &nbsp;
+              {{=T('adjust alternative bedrooms')}}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="{{=URL('default', 'kill_them_all')}}">
+              <i class="bi bi-pencil-square"></i> &nbsp;
+              {{=T('delete record')}}
+            </a>
+          </li>
+          <li class="divider"></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{=URL('admin','default','index')}}">
+              <i class="bi bi-gear"></i> &nbsp;
+              {{=T("admin")}}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{=URL('default','change_center')}}">
+              <i class="bi bi-globe2"></i> &nbsp;
+              {{=T("change center")}}
+            </a>
+          </li>
+          {{elif auth.has_membership('admin') and auth.user.center == 2:}}
+          <li class="divider"></li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{=URL('default','change_center')}}">
+              <i class="bi bi-globe2"></i> &nbsp;
+              {{=T("change center")}}
+            </a>
+          </li>
+          {{pass}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+

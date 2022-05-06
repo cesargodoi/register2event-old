@@ -1,0 +1,39 @@
+<div 
+  id="{{=row.id}}"
+  class="card mb-2" 
+  onclick="window.open('{{=URL('events','show', vars={'evenid':row.id})}}', '_self')"
+>
+  <div class="row g-0">
+    <div 
+      class="col-sm-1 p-2 bg-{{='primary' if row.status == 'OPN' else 'danger'}} bg-gradient bg-opacity-75 text-center"
+      style="display: flex; justify-content: center; align-items: center;"
+    >
+      <h1><i class="bi bi-door-{{='open' if row.status == 'OPN' else 'closed'}}"></i></h1>
+    </div>
+    <div class="col-sm-11">
+      <div class="card-body">
+        <h5 class="card-title">{{=row.activity.activity}} - {{=row.start_date.strftime('%B de %Y')}}</h5>
+        <p class="card-text">
+          {{
+            if row.start_date == row.end_date:
+              period = row.end_date.strftime('%d de %B de %Y')
+            elif row.start_date.strftime('%m') == row.end_date.strftime('%m'):
+              period = 'de %s à %s' % (row.start_date.strftime('%d'),row.end_date.strftime('%d de %B de %Y'))
+            else:
+              period = 'de %s à %s' % (row.start_date.strftime('%d/%m'),row.end_date.strftime('%d/%m de %Y'))
+            pass
+          }}
+            <strong>{{=T('date')}}:</strong> <em>{{=period}}</em>&nbsp;&nbsp;&nbsp;
+            <strong>{{=T('deadline')}}:</strong>
+            <em>{{=row.reg_deadline.strftime('%d/%m/%y %H:%M')}}</em>&nbsp;&nbsp;&nbsp;
+            <strong>{{=T('registration fee')}}:</strong> <em>${{=row.ref_value}}</em><br>
+            {{if row.description:}}
+            <strong>{{=T('description')}}:</strong> <em>{{=row.description}}</em>&nbsp;&nbsp;&nbsp;
+            {{pass}}
+            <strong>{{=T('subscriptions')}}:</strong> <span class="label label-primary">{{=row.guests}}</span>
+            <em>{{=T('until now')}}</em>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

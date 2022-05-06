@@ -1,0 +1,26 @@
+<nav class="navbar navbar-light" aria-label="paginator">
+  <span class="navbar-text">
+    <small><strong>{{=records}} {{=T('records')}} </strong> - {{=T('page')}} {{=page}} {{=T('of')}}
+      {{=total_pages}}</small>
+  </span>
+
+  <ul class="pagination pagination-sm justify-content-end mb-2 mr-sm-2">
+    <li class="page-item {{='disabled' if (page - 1) == 0 else ''}}">
+      <a class="page-link" href="{{=URL(_list, vars={'page':page - 1}) if (page - 1) > 0 else '#'}}">
+        <i class="fa fa-arrow-left fa-fw"></i>
+      </a>
+    </li>
+
+    <li class="page-item disabled">
+      <a class="page-link" href="#">
+        {{=page}}
+      </a>
+    </li>
+
+    <li class="page-item {{='disabled' if page + 1 > total_pages else ''}}">
+      <a class="page-link" href="{{=URL(_list, vars={'page':page + 1}) if page + 1 <= total_pages else '#'}}">
+        <i class="fa fa-arrow-right fa-fw"></i>
+      </a>
+    </li>
+  </ul>
+</nav>

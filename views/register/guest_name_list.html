@@ -1,0 +1,10 @@
+{{ for guest in guests:}}
+  {{ print(guest) }}
+  <div
+    onclick="window.open('{{= URL("register", "confirm_guest", vars={"guesid": guest['id']}) }}', '_self')"
+    onmouseover="this.style.backgroundColor='orange'"
+    onmouseout="this.style.backgroundColor='white'"
+  >
+    {{= guest['name'] }}
+  </div>
+{{ pass }}

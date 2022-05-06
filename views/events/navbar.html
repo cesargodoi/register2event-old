@@ -1,0 +1,94 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <nav class="nav">
+    <span class="nav-link text-uppercase">
+      <strong>
+        {{ if view_credits==True: }}
+          Créditos
+        {{ else: }}
+          Hospedes
+        {{ pass }}
+      </strong>
+    </span>
+    {{ if event.status == 'OPN': }}
+      {{ if auth.has_membership('root') or auth.has_membership('admin') or auth.has_membership('office') or request.now < event.reg_deadline: }} 
+        {{
+          if request.now> event.reg_deadline:
+            link = URL('register', 'register_step1', vars={'evenid':event.id, 'centid':event.center, 'late':True})
+          else:
+            link = URL('register', 'register_step1', vars={'evenid':event.id, 'centid':event.center})
+          pass
+        }}
+        <a class="btn btn-outline-primary me-1" aria-current="page" href="{{= link }}">
+          <i class="bi bi-plus-lg"></i>
+          Insert
+        </a>
+      {{ pass }}
+    {{ pass }}
+
+    {{ if auth.has_membership('root') or (auth.has_membership('admin') and auth.user.center == event.center.id): }}
+      {{ if admin_view: }}
+        <button 
+          type="button" 
+          class="btn btn-outline-{{= 'danger' if event.status=='OPN' else 'info' }} me-1"
+          onclick="eventOnOff({{=event.id}})"
+        >
+          <i class="bi bi-toggle-{{= 'on' if event.status=='OPN' else 'off' }}"></i>
+          {{= T('Close') if event.status=='OPN' else T('Open') }}
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-warning me-1"
+          onclick="window.open('{{= URL('edit', vars={'evenid':event.id}) }}', '_self')"
+        >
+          <i class="bi bi-pencil"></i>
+          {{= T('Edit') }}
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-success me-1"
+          onclick="window.open('{{= URL('accommodations', 'buildings_on_event', vars={'evenid':event.id}) }}', '_self')"
+        >
+          <i class="bi bi-building"></i>
+          {{= T('Lodge') }}
+        </button>
+      {{pass}}
+      {{
+        if not admin_view:
+          url = URL('events', 'show', vars={'evenid':event.id, 'admin_view':'T'})
+        else:
+          url = URL('events', 'show', vars={'evenid':event.id})
+        pass
+      }}
+      <button 
+        type="button" 
+        class="btn btn-outline-{{= 'info' if not admin_view else 'danger' }}"
+        onclick="window.open('{{= url }}', '_self')"
+      >
+        <i class="bi bi-eye{{= '' if not admin_view else '-slash' }}"></i>
+        Admin
+      </button>
+
+    {{pass}}
+    
+  </nav>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    {{ if view_credits==True: }}
+      <a 
+        class="nav-link"
+        href="{{= URL('events', 'show', vars={'evenid':event.id, 'view_credits':False}) }}"
+      >
+        <i class="bi bi-eye"></i>
+        Hospedes
+      </a>
+    {{ else: }}
+      <a
+        class="nav-link"
+        href="{{= URL('events', 'show', vars={'evenid':event.id, 'view_credits':True}) }}"
+      >
+        <i class="bi bi-eye"></i>
+        Créditos
+      </a>
+    {{ pass }}
+    {{= search }}
+  </div>
+</div>

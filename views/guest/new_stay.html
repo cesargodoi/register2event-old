@@ -1,0 +1,24 @@
+{{extend 'layout.html'}}
+
+{{block header}}
+  <h3>{{= T('stay') }} 
+    &nbsp;&nbsp;<small class="text-muted">{{= T('add a new') }}</small>
+  </h3>
+{{end}}
+
+{{block header_menu}}
+  <button type="button" class="btn btn-outline-info" onclick="goBack()">
+    <i class="bi bi-chevron-left"></i>
+    {{= T('back') }}
+  </button>
+{{end}}
+
+{{ block content }}
+  {{= form }}
+{{ end }}
+
+{{ block scripts }}
+  <script type="text/javascript">
+    function goBack() {history.go(-1)};
+  </script>
+{{ end }}

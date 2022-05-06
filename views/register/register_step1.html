@@ -1,0 +1,77 @@
+{{extend 'layout.html'}}
+
+{{ block header}}
+  <h4>Enter guest name</h4>
+{{ end }}
+
+{{ block header_menu }}
+  <form class="navbar-form">
+    <div class="form-group">
+      <input 
+        type="text" 
+        id="guest" 
+        name="guest" 
+        style="width: 20rem" 
+        class="form-control me-1"
+        placeholder="{{= T('enter the guest name') }}" 
+        hx-post="{{= URL('register', 'guest_selector') }}" 
+        hx-trigger="keyup changed delay:500ms, search" 
+        hx-target="#suggestions" 
+      >
+    </div>
+    <div 
+    style="position: absolute; z-index:300" 
+    id="suggestions" 
+    class="suggestions text-left"
+    >
+      <!-- names goes here -->
+    </div>
+  </form>
+
+  <a class="btn btn-outline-primary me-1" href="{{=URL('guest','new', vars={'reg':True})}}">
+    <i class="bi bi-plus-lg"></i>
+    {{= T('Add') }}
+  </a>
+  <button type="button" class="btn btn-outline-info"
+    onclick="window.open('{{=URL('events','show', vars={'evenid':evenid})}}', '_self')">
+    <i class="bi bi-chevron-left"></i>
+    {{= T('Back') }}
+  </button>
+{{end}}
+
+{{ block content }}
+<!-- modal -->
+<div id="show_guest" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="showGuest"></div>
+{{ end }}
+
+{{ block css }}
+  <style>
+    #suggestions {
+      position: relative;
+    }
+
+    .suggestions {
+      width: 20rem;
+      background: white;
+      border: solid 1px #55A6C8;
+    }
+
+    .suggestions DIV {
+      padding: 2px 4px;
+    }
+  </style>
+{{ end }}
+
+{{ block scripts }}
+  <script type="text/javascript">
+    jQuery("#guest").focus();
+
+
+    function include(id) {
+      ajax("{{=URL('register', 'include_guest')}}?guest=" + id, [], ':eval');
+      window.location.replace("{{=URL('register', 'register_step2')}}");
+    };
+
+    function goBack() { window.open("{{=URL('events','show', vars={'evenid':evenid})}}", '_self') };
+  </script>
+{{ end }}

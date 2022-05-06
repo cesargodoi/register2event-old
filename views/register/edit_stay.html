@@ -1,0 +1,62 @@
+{{ extend 'layout.html' }}
+
+{{ block header }}
+  <h3>
+    {{= register.guesid.name }} &nbsp;&nbsp;
+    <small class="text-secondary">R$ {{= register.amount }}</small>
+  </h3>
+{{ end }}
+
+{{ block header_menu }}
+  {{
+    _disabled=""
+    if (
+      auth.has_membership("office")
+      or (
+        (
+          auth.has_membership("admin")
+          and auth.user.center != register.evenid.center.id
+        )
+        and register.evenid.status == "CLS"
+      )
+      or (
+        (
+          auth.has_membership("admin")
+          and auth.user.center == register.evenid.center.id
+          )
+      )
+      ):
+      _disabled="disabled"
+    pass
+
+    _url = "#"
+    if auth.has_membership('root') or (auth.has_membership('admin') and register.evenid.status == 'OPN'):
+      _url = URL('register', 'edit_registers', vars={'regid':register.id})
+    pass
+  }}
+    
+  <a 
+    type="button"
+    class="btn btn-outline-{{= 'warning' if not auth.has_membership('office') else 'secondary' }} {{= _disabled }} me-2" 
+    href="{{= _url }}" target="_self"
+  >
+    <i class="bi bi-pencil"></i> 
+    {{=T('payment forms')}}
+  </a>
+  
+  <button type="button" class="btn btn-outline-info" onclick="goBack()">
+    <i class="bi bi-chevron-left"></i>
+    {{= T('Back') }}
+  </button>
+
+{{ end }}
+
+{{ block content }}
+  {{=form}}
+{{ end }}
+
+{{ block scripts }}
+  <script type="text/javascript">
+    function goBack() { history.go(-1) };
+  </script>
+{{ end }}

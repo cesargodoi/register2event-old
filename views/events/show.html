@@ -1,0 +1,138 @@
+{{ extend 'layout.html' }}
+
+{{ block header }}
+{{
+  if event.start_date.strftime('%m')==event.end_date.strftime('%m'):
+    period = '%s à %s' % (event.start_date.strftime('%d'),event.end_date.strftime('%d'))
+  else:
+    period = '%s à %s' % (event.start_date.strftime('%d/%m'),event.end_date.strftime('%d/%m'))
+  pass
+}}
+
+<h2>
+  {{= event.activity.activity }}&nbsp;&nbsp;&nbsp;&nbsp;
+  <small class="text-uppercase text-muted">
+    <em>
+      {{= event.center.shortname }} - {{= event.center.city }}
+      ({{= event.center.country }})&nbsp;&nbsp;-&nbsp;&nbsp;{{= event.start_date.strftime('%b/%Y') }}
+    </em>
+  </small>
+</h2>
+{{ end }}
+
+{{ block header_menu }}
+<h4>
+  <span class="badge rounded-pill bg-{{= 'danger' if event.status=='CLS' else 'primary' }} pull-right">
+    {{= T('CLOSE') if event.status=='CLS' else T('OPEN') }}
+  </span>
+</h4>
+{{ end }}
+
+{{ block content }}
+  {{ _list = 'show' }}
+  {{ include 'events/summary.html' }}
+
+  {{ include 'events/navbar.html' }}
+
+  {{ if event_records > 0: }}
+
+    <!---{ include 'paginator.html' }}-->
+
+    {{ if rows: }}
+      <table class="table table-hover" id="registrations">
+       {{ include 'events/registrations.html' }}
+      </table>
+    {{ else: }}
+      <div class="alert alert-warning">
+        <h4>Nenhum <b>{{=T('guest')}}</b> com "{{=term}}" no nome foi encontrado.</h4>
+      </div>
+    {{ pass }}
+  
+  {{ else: }}
+
+    <div class="alert alert-warning">
+      <h4>Nenhum <b>{{=T('guest')}}</b> lançado no evento até agora.</h4>
+    </div>
+
+  {{ pass }}
+
+  <!-- modal confirm -->
+  <div class="modal fade" id="confirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+      <div class="modal-content" id="modalContent">
+        <!-- aqui vai o corpo da modal -->
+      </div>
+    </div>
+  </div>
+
+{{ end }}
+
+{{ block side_menu }}
+  {{ include "link_menu_reports.html" if not session.admin_view else "link_menu_reports_admin.html" }}
+{{ end }}
+
+{{ block scripts }}
+<script type="text/javascript">
+  function regInfo(regid) {
+    ajax(`{{=URL('reports', 'register_info')}}/${regid}`, [], 'confirm');
+  };
+
+  function unEnrollVerify(regid) {
+    ajax(`{{=URL('register', 'unenroll_verify')}}?regid=${regid}`, [], 'confirm');
+  };
+
+  // ok
+  function unEnrollGenerateCreditGsc(regid) {
+    ajax(`{{=URL('register', 'unenroll_generate_credit_gsc')}}?regid=${regid}`, [], ':eval');
+  };
+
+  // ok
+  function unEnrollCancelRegistersGsc(regid) {
+    ajax(`{{=URL('register', 'unenroll_cancel_registers_gsc')}}?regid=${regid}`, [], ':eval');
+  };
+
+  // ok
+  function unEnrollCancelRegisterGsc(regid) {
+    ajax(`{{=URL('register', 'unenroll_cancel_register_gsc')}}?regid=${regid}`, [], ':eval');
+  };
+
+  // ok
+  function unEnrollGenCreditLikeRegister(regid) {
+    ajax(`{{=URL('register', 'unenroll_gen_credit_like_register')}}?regid=${regid}`, [], ':eval');
+  };
+
+  // ok
+  function unEnrollGenCreditRearranging(regid) {
+    ajax(`{{=URL('register', 'unenroll_gen_credit_rearranging')}}?regid=${regid}`, [], ':eval');
+  };
+
+  // ok
+  function unEnrollGenerateCredit(regid) {
+    ajax(`{{=URL('register', 'unenroll_generate_credit')}}?regid=${regid}`, [], ':eval');
+  };
+
+  // ok
+  function unEnrollCancelRegister(regid) {
+    ajax(`{{=URL('register', 'unenroll_cancel_register')}}?regid=${regid}`, [], ':eval');
+  };
+
+  // ok
+  function reEnableRegistration(regid) {
+    ajax(`{{=URL('register', 'reenable_registration')}}?regid=${regid}`, [], ':eval');
+  };
+
+  function eventOnOff(evenid) {
+    if (confirm("{{=T('Are you sure')}}?")) {
+      ajax(`{{=URL('event_on_off')}}?evenid=${evenid}`, [], ':eval');
+    }
+  };
+
+  function getBedroom(guesid, evenid) {
+    ajax(`{{=URL('accommodations', 'guest_bedroom')}}?evenid=${evenid}&guesid=${guesid}`, [], 'confirm');
+  };
+
+  function removeFromBedroom(evenid, guesid, bedroomid) {
+    ajax(`{{=URL('accommodations', 'remove_from_bedroom')}}?evenid=${evenid}&guesid=${guesid}&bedroomid=${bedroomid}&fromguest=T`, [], ':eval');
+  };
+</script>
+{{ end }}

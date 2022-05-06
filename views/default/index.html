@@ -1,0 +1,38 @@
+{{extend 'layout.html'}}
+
+{{if auth.has_membership('root') or auth.has_membership('admin') or auth.has_membership('office'):}}
+  {{block side_menu}}
+    {{include 'link_menu.html'}}
+  {{end}}
+{{pass}}
+
+{{block header}}
+  {{if rows:}}
+  <h2>Inscrições Abertas</h2>
+  {{else:}}
+  <h2>Nenhum Evento</h2>
+  {{pass}}
+{{end}}
+
+{{block content}}
+{{if rows:}}
+  <br>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="list-group">
+        {{for row in rows:}}
+          {{ include 'events/event.html' }}
+        {{pass}}
+      </div>
+    </div>
+  </div>
+{{pass}}
+{{end}}
+
+{{block scripts}}
+<script type="text/javascript">
+function bkp(){
+  ajax("{{=URL('default', 'bkp')}}", [], ':eval');
+}
+</script>
+{{end}}
