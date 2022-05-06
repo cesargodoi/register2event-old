@@ -28,9 +28,10 @@
     {{ if auth.has_membership('root') or (auth.has_membership('admin') and auth.user.center == event.center.id): }}
       {{ if admin_view: }}
         <button 
+          id="onOff"
           type="button" 
           class="btn btn-outline-{{= 'danger' if event.status=='OPN' else 'info' }} me-1"
-          onclick="eventOnOff({{=event.id}})"
+          onclick="eventOnOff({{= event.id }})"
         >
           <i class="bi bi-toggle-{{= 'on' if event.status=='OPN' else 'off' }}"></i>
           {{= T('Close') if event.status=='OPN' else T('Open') }}

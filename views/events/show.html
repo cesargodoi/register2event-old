@@ -73,66 +73,64 @@
 
 {{ block scripts }}
 <script type="text/javascript">
-  function regInfo(regid) {
-    ajax(`{{=URL('reports', 'register_info')}}/${regid}`, [], 'confirm');
-  };
+  // function unEnrollVerify(regid) {
+  //   ajax(`{{=URL('register', 'unenroll_verify')}}?regid=${regid}`, [], 'confirm');
+  // };
 
-  function unEnrollVerify(regid) {
-    ajax(`{{=URL('register', 'unenroll_verify')}}?regid=${regid}`, [], 'confirm');
-  };
+  // // ok
+  // function unEnrollGenerateCreditGsc(regid) {
+  //   ajax(`{{=URL('register', 'unenroll_generate_credit_gsc')}}?regid=${regid}`, [], ':eval');
+  // };
 
-  // ok
-  function unEnrollGenerateCreditGsc(regid) {
-    ajax(`{{=URL('register', 'unenroll_generate_credit_gsc')}}?regid=${regid}`, [], ':eval');
-  };
+  // // ok
+  // function unEnrollCancelRegistersGsc(regid) {
+  //   ajax(`{{=URL('register', 'unenroll_cancel_registers_gsc')}}?regid=${regid}`, [], ':eval');
+  // };
 
-  // ok
-  function unEnrollCancelRegistersGsc(regid) {
-    ajax(`{{=URL('register', 'unenroll_cancel_registers_gsc')}}?regid=${regid}`, [], ':eval');
-  };
+  // // ok
+  // function unEnrollCancelRegisterGsc(regid) {
+  //   ajax(`{{=URL('register', 'unenroll_cancel_register_gsc')}}?regid=${regid}`, [], ':eval');
+  // };
 
-  // ok
-  function unEnrollCancelRegisterGsc(regid) {
-    ajax(`{{=URL('register', 'unenroll_cancel_register_gsc')}}?regid=${regid}`, [], ':eval');
-  };
+  // // ok
+  // function unEnrollGenCreditLikeRegister(regid) {
+  //   ajax(`{{=URL('register', 'unenroll_gen_credit_like_register')}}?regid=${regid}`, [], ':eval');
+  // };
 
-  // ok
-  function unEnrollGenCreditLikeRegister(regid) {
-    ajax(`{{=URL('register', 'unenroll_gen_credit_like_register')}}?regid=${regid}`, [], ':eval');
-  };
+  // // ok
+  // function unEnrollGenCreditRearranging(regid) {
+  //   ajax(`{{=URL('register', 'unenroll_gen_credit_rearranging')}}?regid=${regid}`, [], ':eval');
+  // };
 
-  // ok
-  function unEnrollGenCreditRearranging(regid) {
-    ajax(`{{=URL('register', 'unenroll_gen_credit_rearranging')}}?regid=${regid}`, [], ':eval');
-  };
+  // // ok
+  // function unEnrollGenerateCredit(regid) {
+  //   ajax(`{{=URL('register', 'unenroll_generate_credit')}}?regid=${regid}`, [], ':eval');
+  // };
 
-  // ok
-  function unEnrollGenerateCredit(regid) {
-    ajax(`{{=URL('register', 'unenroll_generate_credit')}}?regid=${regid}`, [], ':eval');
-  };
+  // // ok
+  // function unEnrollCancelRegister(regid) {
+  //   ajax(`{{=URL('register', 'unenroll_cancel_register')}}?regid=${regid}`, [], ':eval');
+  // };
 
-  // ok
-  function unEnrollCancelRegister(regid) {
-    ajax(`{{=URL('register', 'unenroll_cancel_register')}}?regid=${regid}`, [], ':eval');
-  };
-
-  // ok
-  function reEnableRegistration(regid) {
-    ajax(`{{=URL('register', 'reenable_registration')}}?regid=${regid}`, [], ':eval');
-  };
+  // // ok
+  // function reEnableRegistration(regid) {
+  //   ajax(`{{=URL('register', 'reenable_registration')}}?regid=${regid}`, [], ':eval');
+  // };
 
   function eventOnOff(evenid) {
-    if (confirm("{{=T('Are you sure')}}?")) {
-      ajax(`{{=URL('event_on_off')}}?evenid=${evenid}`, [], ':eval');
+    if (confirm("{{=T('Are you sure')}} to change event status?")) {
+      htmx.ajax('GET', `{{= URL('event_on_off') }}?evenid=${evenid}`, "#onOff").then(() => {
+        document.location.reload(true);
+      });
     }
   };
 
-  function getBedroom(guesid, evenid) {
-    ajax(`{{=URL('accommodations', 'guest_bedroom')}}?evenid=${evenid}&guesid=${guesid}`, [], 'confirm');
-  };
+  // function getBedroom(guesid, evenid) {
+  //   ajax(`{{=URL('accommodations', 'guest_bedroom')}}?evenid=${evenid}&guesid=${guesid}`, [], 'confirm');
+  // };
 
-  function removeFromBedroom(evenid, guesid, bedroomid) {
-    ajax(`{{=URL('accommodations', 'remove_from_bedroom')}}?evenid=${evenid}&guesid=${guesid}&bedroomid=${bedroomid}&fromguest=T`, [], ':eval');
-  };
+  // function removeFromBedroom(evenid, guesid, bedroomid) {
+  //   ajax(`{{=URL('accommodations', 'remove_from_bedroom')}}?evenid=${evenid}&guesid=${guesid}&bedroomid=${bedroomid}&fromguest=T`, [], ':eval');
+  // };
 </script>
 {{ end }}

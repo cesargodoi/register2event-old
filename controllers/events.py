@@ -137,7 +137,7 @@ def show():
     )
 
 
-# delete
+#  delete  ####################################################################
 @auth.requires_login()
 @auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
 def delete():
@@ -154,7 +154,7 @@ def delete():
         return 'location.href="%s";' % URL("events", "list")
 
 
-# event status (on / off)
+#  event status (on / off)  ###################################################
 @auth.requires_login()
 @auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
 def event_on_off():
@@ -163,7 +163,7 @@ def event_on_off():
         event.update_record(status="CLS")
     else:
         event.update_record(status="OPN")
-    return "document.location.reload(true)"
+    return "..."
 
 
 #  forms  #####################################################################
@@ -238,7 +238,7 @@ def _search_guests_on_event_form():
     )
     if not request.vars.admin_view:
         search.element(_id="unalloc")["_class"] = "d-none"
-    search.element(_name="term")["_style"] = "width: 15rem;"
+    search.element(_name="term")["_style"] = "width: 10rem;"
     search.element(_name="term")["_placeholder"] = T("search")
 
     return search

@@ -5,7 +5,7 @@
 <div 
   class="card mb-1 is_link border border-{{= 'primary' if row.status == 'OPN' else 'danger' }}" 
   onclick="window.open('{{= URL('events','show', vars={'evenid':row.id}) }}', '_self')"
-  {{ if last_iteration: }}
+  {{ if last_iteration and page != 'index': }}
     hx-get="{{= URL('events', 'events_infinite_scroll', vars={'page': page + 1, 'term': term}) }}" 
     hx-trigger="revealed" 
     hx-swap="afterend"
