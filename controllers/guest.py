@@ -164,7 +164,6 @@ def infinite_scroll():
     regs = 10
     # set vars
     term = request.vars.term or ""
-
     # select query
     if not term:
         query = (
@@ -184,12 +183,10 @@ def infinite_scroll():
                 & (Guest.is_active == True)
                 & (Guest.center == auth.user.center)
             )
-
     # get limitby
-    limitby = (regs * (page - 1), regs * page)
-
+    _limitby = (regs * (page - 1), regs * page)
     # get rows
-    rows = db(query).select(orderby=Guest.name_sa, limitby=limitby)
+    rows = db(query).select(orderby=Guest.name_sa, limitby=_limitby)
 
     return dict(rows=rows, page=page, term=term)
 

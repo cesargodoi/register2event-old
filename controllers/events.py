@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from datetime import date
 
 
@@ -35,82 +34,49 @@ def edit():
     return dict(form=edit, event=evenid)
 
 
-# list
+#  list  ######################################################################
 @auth.requires_login()
 def list():
-    from gluon import current
-
     # get page
     page = int(request.vars.page) if request.vars.page else 1
-
     # if exists session.mapp or session.register delete it
     if session.mapp or session.register:
         clear_session()
     session.referer = []
-
     # search
-    search = FORM(
-        INPUT(_name="term", _class="form-control me-1"),
-        INPUT(
-            _type="submit",
-            _class="btn btn-outline-success me-2",
-            _value=T("search"),
-        ),
-        _class="d-flex",
-    )
-    search.element(_name="term")["_style"] = "width: 220px;"
-    search.element(_name="term")["_placeholder"] = T("MM/YYYY")
-
+    search = _search_events_by_date_form()
+    # get term
+    term = request.vars.term or ""
     # select query
-    qry = (Events.id > 0) & (Events.is_active == True)
-    if request.vars.term == "":
+    if not term:
         qry = (Events.id > 0) & (Events.is_active == True)
-        current.request.get_vars.page = 1
-    elif request.vars.term:
+    else:
         if "/" in request.vars.term:
             term = request.vars.term.split("/")
             qry = (Events.start_date.month() == term[0]) & (
                 Events.start_date.year() == term[1]
             )
-        current.request.get_vars.page = 1
-    elif request.vars.t:
-        term = request.vars.t.split("/")
-        qry = (Events.start_date.month() == term[0]) & (
-            Events.start_date.year() == term[1]
-        )
-
-    # gen pagination
-    paginator = gen_of_pagination(query=qry, page=page, paginate=25)
-
     # get rows
-    rows = db(qry).select(
-        orderby=~Events.start_date, limitby=paginator.limitby
-    )
-
+    rows = db(qry).select(orderby=~Events.start_date, limitby=(0, 10))
+    # adjust rows
     for r in rows:
-        r.guests = db(
+        _guests = db(
             (Register.evenid == r.id)
             & (Register.is_active == True)
             & (Register.credit == False)
         ).count()
+        r.guests = _guests
         r.centid = r.center
 
-    return dict(
-        search=search.process(),
-        rows=rows,
-        page=paginator.page,
-        records=paginator.records,
-        total_pages=paginator.total_pages,
-    )
+    return dict(search=search.process(), rows=rows, page=page, term=term)
 
 
-# show
+#  show  ######################################################################
 @auth.requires_login()
 def show():
     # get page
     page = int(request.vars.page) if request.vars.page else 1
     clear_session()
-
     # set vars
     evenid = request.vars.evenid
     admin_view = request.vars.admin_view
@@ -124,48 +90,15 @@ def show():
     ]
     all_regs = sorted(all_registrations, key=lambda x: x.guesid.name_sa)
     total_registers = len(all_regs)
-
-    # get registers by center
+    # get registers by center, ids and latests
     registers = get_registers_by_center(admin_view, view_credits, all_regs)
-
     ids = [g.guesid for g in registers]
     lates = [g.guesid for g in registers if g.late]
-
     # search
-    search = FORM(
-        DIV(
-            INPUT(_name="term", _class="form-control me-1"),
-            _class="form-group",
-        ),
-        INPUT(
-            _type="submit",
-            _class="btn btn-outline-success me-2",
-            _value=T("search"),
-        ),
-        DIV(
-            LABEL(
-                INPUT(
-                    _name="unalloc",
-                    _type="checkbox",
-                    _class="form-check-input",
-                ),
-                T("not hosteds"),
-                _class="form-check-label",
-            ),
-            _class="form-check",
-            _id="unalloc",
-        ),
-        _class="d-flex",
-    )
-    if not admin_view:
-        search.element(_id="unalloc")["_style"] = "display:none;"
-    search.element(_name="term")["_style"] = "width: 150px;"
-    search.element(_name="term")["_placeholder"] = T("search")
-
-    # select query
-    extr_vars = {}
+    search = _search_guests_on_event_form()
+    # get term
     term = request.vars.term or ""
-
+    # select query
     if not term:
         rows = registers[:10]
     else:
@@ -174,7 +107,7 @@ def show():
             for reg in registers
             if term.lower() in reg.guesid.name_sa.lower()
         ][:10]
-
+    # adjust rows
     for reg in rows:
         reg.guest_name = reg.guesid.name
         if reg.lodge == "LDG" and reg.bedroom:
@@ -204,58 +137,146 @@ def show():
     )
 
 
-# helper
-def get_registers_by_center(admin_view, view_credits, all_event_registrations):
-    if auth.has_membership("root") or (
-        auth.has_membership("admin") and auth.user.center == event.center.id
-    ):
-        if admin_view:
-            session.admin_view = True
-            registrations = [
-                reg
-                for reg in all_event_registrations
-                if (
-                    reg.credit == True if view_credits else reg.credit == False
-                )
-            ]
-            if request.vars._formkey:
-                if request.vars.unalloc:
-                    registrations = [
-                        reg
-                        for reg in registrations
-                        if not reg.bedroom
-                        and reg.lodge == "LDG"
-                        and reg.is_active
-                    ]
-            else:
-                if request.get_vars.unall:
-                    registrations = [
-                        reg
-                        for reg in registrations
-                        if not reg.bedroom
-                        and reg.lodge == "LDG"
-                        and reg.is_active
-                    ]
-        else:
-            if session.admin_view:
-                del session["admin_view"]
-            registrations = [
-                reg
-                for reg in all_event_registrations
-                if reg.guesid.center == auth.user.center
-                and (
-                    reg.credit == True if view_credits else reg.credit == False
-                )
-            ]
+# delete
+@auth.requires_login()
+@auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
+def delete():
+    evenid = int(request.args(0)) or redirect(URL("list"))
+    if db(Register.evenid == evenid).select():
+        event = Events[evenid]
+        event.update_record(is_active=False)
+        mapp = db(Bedrooms_mapping.evenid == evenid).select().first()
+        mapp.update_record(is_active=False)
+        return "window.location = document.referrer;"
     else:
-        registrations = [
-            reg
-            for reg in all_event_registrations
-            if reg.guesid.center == auth.user.center
-            and (reg.credit == True if view_credits else reg.credit == False)
-        ]
+        db(Events.id == evenid).delete()
+        db(Bedrooms_mapping.evenid == evenid).delete()
+        return 'location.href="%s";' % URL("events", "list")
 
-    return registrations
+
+# event status (on / off)
+@auth.requires_login()
+@auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
+def event_on_off():
+    event = Events[request.vars.evenid]
+    if event.status == "OPN":
+        event.update_record(status="CLS")
+    else:
+        event.update_record(status="OPN")
+    return "document.location.reload(true)"
+
+
+#  forms  #####################################################################
+def _event_form(instance=None):
+    form = (
+        SQLFORM(Events, instance, submit_button=T("Update"))
+        if instance
+        else SQLFORM(Events, submit_button=T("Add"))
+    )
+
+    if auth.has_membership("admin"):
+        form.element(_id="events_center__row")["_class"] = "d-none"
+        form.element("option", _value=int(auth.user.center))[
+            "_selected"
+        ] = "selected"
+
+    form.element(_type="submit")["_class"] = "btn btn-primary btn-lg"
+    form.element(_name="description")["_rows"] = 2
+    form.element(_id="submit_record__row")["_class"] = "mt-3 text-end"
+    submit_class = "btn btn-outline-{} btn-lg mb-4".format(
+        "secondary" if instance else "primary"
+    )
+    form.element(_type="submit")["_class"] = submit_class
+
+    if instance:
+        form.element(_id="events_id__row")["_class"] = "d-none"
+
+    return form
+
+
+def _search_events_by_date_form():
+    search = FORM(
+        INPUT(_name="term", _class="form-control me-1"),
+        INPUT(
+            _type="submit",
+            _class="btn btn-outline-success me-2",
+            _value=T("search"),
+        ),
+        _class="d-flex",
+    )
+    search.element(_name="term")["_style"] = "width: 10rem;"
+    search.element(_name="term")["_placeholder"] = T("MM/YYYY")
+
+    return search
+
+
+def _search_guests_on_event_form():
+    search = FORM(
+        DIV(
+            INPUT(_name="term", _class="form-control me-1"),
+            _class="form-group",
+        ),
+        INPUT(
+            _type="submit",
+            _class="btn btn-outline-success me-2",
+            _value=T("search"),
+        ),
+        DIV(
+            LABEL(
+                INPUT(
+                    _name="unalloc",
+                    _type="checkbox",
+                    _class="form-check-input",
+                ),
+                T("not hosteds"),
+                _class="form-check-label",
+            ),
+            _class="form-check",
+            _id="unalloc",
+        ),
+        _class="d-flex",
+    )
+    if not request.vars.admin_view:
+        search.element(_id="unalloc")["_class"] = "d-none"
+    search.element(_name="term")["_style"] = "width: 15rem;"
+    search.element(_name="term")["_placeholder"] = T("search")
+
+    return search
+
+
+# infinite scrolls
+def events_infinite_scroll():
+    response.view = "events/events.html"
+    # get page
+    page = int(request.vars.page)
+    regs = 10
+    # set vars
+    term = request.vars.term or ""
+    # select query
+    if not term:
+        qry = (Events.id > 0) & (Events.is_active == True)
+    else:
+        if "/" in request.vars.term:
+            term = request.vars.term.split("/")
+            qry = (Events.start_date.month() == term[0]) & (
+                Events.start_date.year() == term[1]
+            )
+
+    # get limitby
+    limitby = (regs * (page - 1), regs * page)
+    # get rows
+    rows = db(qry).select(orderby=~Events.start_date, limitby=limitby)
+    # adjust rows
+    for r in rows:
+        _guests = db(
+            (Register.evenid == r.id)
+            & (Register.is_active == True)
+            & (Register.credit == False)
+        ).count()
+        r.guests = _guests
+        r.centid = r.center
+
+    return dict(rows=rows, page=page, term=term)
 
 
 def infinite_scroll():
@@ -324,58 +345,55 @@ def infinite_scroll():
     )
 
 
-# delete
-@auth.requires_login()
-@auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
-def delete():
-    evenid = int(request.args(0)) or redirect(URL("list"))
-    if db(Register.evenid == evenid).select():
-        event = Events[evenid]
-        event.update_record(is_active=False)
-        mapp = db(Bedrooms_mapping.evenid == evenid).select().first()
-        mapp.update_record(is_active=False)
-        return "window.location = document.referrer;"
+# helper
+def get_registers_by_center(admin_view, view_credits, all_event_registrations):
+    if auth.has_membership("root") or (
+        auth.has_membership("admin") and auth.user.center == event.center.id
+    ):
+        if admin_view:
+            session.admin_view = True
+            registrations = [
+                reg
+                for reg in all_event_registrations
+                if (
+                    reg.credit == True if view_credits else reg.credit == False
+                )
+            ]
+            if request.vars._formkey:
+                if request.vars.unalloc:
+                    registrations = [
+                        reg
+                        for reg in registrations
+                        if not reg.bedroom
+                        and reg.lodge == "LDG"
+                        and reg.is_active
+                    ]
+            else:
+                if request.get_vars.unall:
+                    registrations = [
+                        reg
+                        for reg in registrations
+                        if not reg.bedroom
+                        and reg.lodge == "LDG"
+                        and reg.is_active
+                    ]
+        else:
+            if session.admin_view:
+                del session["admin_view"]
+            registrations = [
+                reg
+                for reg in all_event_registrations
+                if reg.guesid.center == auth.user.center
+                and (
+                    reg.credit == True if view_credits else reg.credit == False
+                )
+            ]
     else:
-        db(Events.id == evenid).delete()
-        db(Bedrooms_mapping.evenid == evenid).delete()
-        return 'location.href="%s";' % URL("events", "list")
+        registrations = [
+            reg
+            for reg in all_event_registrations
+            if reg.guesid.center == auth.user.center
+            and (reg.credit == True if view_credits else reg.credit == False)
+        ]
 
-
-# event status (on / off)
-@auth.requires_login()
-@auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
-def event_on_off():
-    event = Events[request.vars.evenid]
-    if event.status == "OPN":
-        event.update_record(status="CLS")
-    else:
-        event.update_record(status="OPN")
-    return "document.location.reload(true)"
-
-
-#  forms  #####################################################################
-def _event_form(instance=None):
-    form = (
-        SQLFORM(Events, instance, submit_button=T("Update"))
-        if instance
-        else SQLFORM(Events, submit_button=T("Add"))
-    )
-
-    if auth.has_membership("admin"):
-        form.element(_id="events_center__row")["_style"] = "display:none;"
-        form.element("option", _value=int(auth.user.center))[
-            "_selected"
-        ] = "selected"
-
-    form.element(_type="submit")["_class"] = "btn btn-primary btn-lg"
-    form.element(_name="description")["_rows"] = 2
-    form.element(_id="submit_record__row")["_class"] = "mt-3 text-end"
-    submit_class = "btn btn-outline-{} btn-lg mb-4".format(
-        "secondary" if instance else "primary"
-    )
-    form.element(_type="submit")["_class"] = submit_class
-
-    if instance:
-        form.element(_id="events_id__row")["_class"] = "d-none"
-
-    return form
+    return registrations

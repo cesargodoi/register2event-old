@@ -21,21 +21,12 @@
 
 <!-- define the paginator -->
 {{ block content }}
-{{ if rows: }}
-{{ include 'paginator.html' }}
-
-<br />
-<div class="row">
-  <div class="col-sm-12">
-    <div class="list-group">
-      {{ for row in rows: }}
-        {{ include 'events/event.html' }}
-      {{ pass }}
-    </div>
-  </div>
-</div>
-
-{{ include 'paginator.html' }}
-{{ pass }}
+  {{ if rows: }}
+    <br>
+      <div class="list-group">
+        {{ include 'events/events.html' }}
+      </div>
+    <br>
+  {{ pass }}
 
 {{ end }}
