@@ -28,34 +28,26 @@
     </div>
   </div>
 
-  <div 
-    id="confirm" 
-    class="modal fade bs-example-modal-sm" 
-    tabindex="-1" 
-    role="dialog" 
-    aria-labelledby="myModalLabel"
-    aria-hidden="true"
-  >
-    <!-- modal content -->
+  <!-- modal confirm -->
+  <div class="modal fade" id="confirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+      <div class="modal-content" id="modalContent">
+        <!-- aqui vai o corpo da modal -->
+      </div>
+    </div>
   </div>
 {{ end }}
 
 {{ block scripts }}
   <script type="text/javascript">
-    $(document).ready(function () {
-      presentation("{{=tab_pres}}");
+    $(document).ready(() => {
       $('[data-toggle="tooltip"]').tooltip();
     });
-    function presentation(tab) {
-      document.getElementById('pres_' + tab).className = "active";
-      document.getElementById(tab).className = "tab-pane fade active in";
-    }
+
     function goBack() { history.go(-1) };
+    
     function moreInfo(regid) {
       ajax("{{=URL('reports', 'stay_more_info')}}/" + regid, [], 'confirm');
-    }
-    function regInfo(regid) {
-      ajax("{{=URL('reports', 'register_info')}}/" + regid, [], 'confirm');
     }
   </script>
 {{ end }}

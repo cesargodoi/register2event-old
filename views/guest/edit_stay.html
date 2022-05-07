@@ -1,35 +1,37 @@
-{{ extend 'layout.html' }}
+{{ extend 'layout.html' }} {{ block header }}
+<h3>
+  {{=guest}} &nbsp;&nbsp;<small class="text-secondary"
+    >{{=T('edit stay')}}</small
+  >
+</h3>
+{{end}} {{ block header_menu }}
+<button
+  id="deleteBtn"
+  type="button"
+  class="btn btn-outline-danger"
+  onclick="delStay({{= stay }});"
+>
+  <i class="bi bi-trash"></i>
+  {{= T('Delete') }}
+</button>
+<button type="button" class="btn btn-outline-info" onclick="goBack()">
+  <i class="bi bi-chevron-left"></i>
+  {{= T('Back') }}
+</button>
+{{ end }} {{ block content }} {{=form}} {{ end }} {{ block scripts }}
+<script type="text/javascript">
+  function goBack() {
+    history.go(-1);
+  }
 
-{{ block header }}
-  <h3>
-    {{=guest}} 
-    &nbsp;&nbsp;<small class="text-secondary">{{=T('edit stay')}}</small>
-  </h3>
-{{end}}
-
-{{ block header_menu }}
-  <button type="button" class="btn btn-outline-danger" onclick="delStay({{= stay }});">
-    <i class="bi bi-trash"></i>
-    {{= T('Delete') }}
-  </button>
-  <button type="button" class="btn btn-outline-info" onclick="goBack()">
-    <i class="bi bi-chevron-left"></i>
-    {{= T('Back') }}
-  </button>
-{{ end }}
-
-{{ block content }}
-  {{=form}}
-{{ end }}
-
-{{ block scripts }}
-  <script type="text/javascript">
-    function goBack() { history.go(-1) };
-
-    function delStay(num) {
-      if (confirm("{{=T('Are you sure')}}?")) {
-        ajax("{{=URL('guest', 'delete_stay')}}/" + num, [], ':eval');
-      }
-    };
-  </script>
+  function delStay(num) {
+    if (confirm("{{=T('Are you sure')}}?")) {
+      htmx
+        .ajax("GET", `{{= URL('guest', 'delete_stay') }}/${num}`, "#deleteBtn")
+        .then(() => {
+          window.location = document.referrer;
+        });
+    }
+  }
+</script>
 {{ end }}

@@ -73,6 +73,9 @@
 
 {{ block scripts }}
 <script type="text/javascript">
+  $(document).ready(() => {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
   // function unEnrollVerify(regid) {
   //   ajax(`{{=URL('register', 'unenroll_verify')}}?regid=${regid}`, [], 'confirm');
   // };

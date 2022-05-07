@@ -111,6 +111,7 @@ def building_on_event():
     or auth.has_membership("office")
 )
 def bedrooms_by_gender_on_event():
+    print("-------- bedrooms_by_gender_on_event --------")
     # verifying if session.mapp exists
     if not session.mapp:
         redirect(URL("events", "show", vars={"evenid": request.vars.evenid}))
@@ -123,7 +124,7 @@ def bedrooms_by_gender_on_event():
         (Bedroom.id.belongs(session.mapp.ids_in_mapping))
         & (Bedroom.builid == request.vars.builid)
         & (Bedroom.gender == request.vars.gender)
-    ).select(orderby=~Bedroom.floor_room)
+    ).select(orderby=~Bedroom.floor_room | Bedroom.bedroom)
     # create a dict of bedrooms with mapp
     bedrooms = []
     for bedroom in _bedrooms:
@@ -131,6 +132,7 @@ def bedrooms_by_gender_on_event():
             bedroom, Mapp.add_mapp(bedroom.id)
         )
         bedrooms.append(Mapp.icons_mapp(bedroom))
+
     return dict(
         rows=bedrooms,
         guests_unallocated=_unallocateds,

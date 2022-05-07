@@ -89,7 +89,6 @@
   <div class="tab-pane" id="stay">
     <br />
     {{ if stays: }}
-      {{ print('não pode entrar aqui') }}
       <table class="table table-condensed" style="font-family:monospace; font-size: 8pt;">
         <thead>
           <tr>
@@ -107,7 +106,12 @@
         {{ for n, stay in enumerate(stays): }}
           <tr>
             <th>{{= n+1 }}</th>
-            <td data-toggle="tooltip" data-placement="top" data-container="body" title="{{= center_repr % stay.center }}">
+            <td 
+              data-toggle="tooltip" 
+              data-placement="top" 
+              data-container="body" 
+              title="{{= center_repr % stay.center }}"
+            >
               {{= center_abbr % stay.center }}
             </td>
             <td>
@@ -195,14 +199,28 @@
         <tbody>
         {{ for n, hist in enumerate(historic): }}
         {{ if hist.credit: }}
-          <tr data-toggle="modal" data-target="#confirm" onclick="regInfo({{= hist.id }});" class="text-primary">
+          <tr 
+            class="text-primary is_link"
+            data-bs-toggle="modal" 
+            data-bs-target="#confirm" 
+            hx-trigger="click"
+            hx-get="{{= URL('reports', 'register_info') }}/{{= hist.id }}" 
+            hx-target="#modalContent"
+          >
             <td>{{= hist.evenid.start_date.strftime('%Y/%B') }}</td>
             <td>{{= hist.evenid.activity.activity }} - {{= hist.evenid.center.shortname }} {{= hist.evenid.center.city }}({{= hist.evenid.center.country }})</td>
             <td colspan="3">{{= T('credit launched') }}</td>
             <td class="text-right"><b>{{= hist.amount }}</b></td>
           </tr>
         {{ else: }}
-          <tr data-toggle="modal" data-target="#confirm" onclick="regInfo({{= hist.id }});">
+          <tr 
+          class="is_link"
+            data-bs-toggle="modal" 
+            data-bs-target="#confirm"
+            hx-trigger="click"
+            hx-get="{{= URL('reports', 'register_info')}}/{{= hist.id }}" 
+            hx-target="#modalContent"
+          >
             <td>{{= hist.evenid.start_date.strftime('%Y/%B')}}</td>
             <td>{{= hist.evenid.activity.activity }} - {{= hist.evenid.center.shortname }} {{= hist.evenid.center.city }}({{= hist.evenid.center.country }})</td>
             <td>{{= LODGE_TYPES[hist.lodge] }}</td>

@@ -8,7 +8,12 @@
 
 {{ block header_menu }}
   {{ if auth.has_membership('root') or auth.has_membership('admin') or auth.has_membership('office'): }}
-    <button type="button" class="btn btn-outline-danger" onclick="delGuest({{=guest}});">
+    <button 
+      id="deleteBtn"
+      type="button" 
+      class="btn btn-outline-danger" 
+      onclick="delGuest({{= guest }});"
+    >
       <i class="bi bi-trash"></i>
       {{= T('Delete') }}
     </button>
@@ -31,8 +36,10 @@
 
     function delGuest(num){
       if (confirm("{{=T('Are you sure')}}?")) {
-        ajax("{{=URL('guest', 'delete')}}/"+num, [], ':eval');
-        }
+        htmx.ajax('GET', `{{= URL('guest', 'delete') }}/${num}`, "#deleteBtn").then(() => {
+          window.location = document.referrer;
+        });
+      }
     };
   </script>
 {{ end }}

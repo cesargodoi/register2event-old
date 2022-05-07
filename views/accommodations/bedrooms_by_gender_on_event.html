@@ -1,38 +1,38 @@
-{{extend 'layout.html'}}
+{{ extend 'layout.html' }}
 
-{{block header}}
-{{
-  if gender=='M':
-    gender_txt = T('masculine')
-    gender_color = 'primary'
-  elif gender=='F':
-    gender_txt = T('feminine')
-    gender_color = 'warning'
-  else:
-    gender_txt = T('mixed')
-    gender_color = 'info'
-  pass
-}}
-<h3>{{=building_repr % builid}}&nbsp;&nbsp;
-  <small>{{='%s(%s)' %(event.activity.activity, event.center.shortname)}}&nbsp;&nbsp;
-    <span class="label label-{{=gender_color}}">{{=gender_txt}}</span>
-  </small>
-</h3>
-{{end}}
-{{block link_menu}}{{end}}
+{{ block header }}
+  {{
+    if gender=='M':
+      gender_txt = 'Masculino'
+    elif gender=='F':
+      gender_txt = 'Feminino'
+    else:
+      gender_txt = 'Mixto'
+    pass
+  }}
+  <h3>{{= building_repr % builid }} {{= gender_txt }}&nbsp;&nbsp; 
+    <small class="text-secondary">{{= '{}({})'.format(event.activity.activity, event.center.shortname) }}</small>
+  </h3>
+{{ end }}
 
-{{block control_menu}}
+{{ block content }}
   <ol class="breadcrumb">
-    <li><a href="{{=URL('events', 'show', vars={'evenid': event.id, 'admin_view':'T'})}}">{{=T('event')}}</a></li>
-    <li><a href="{{=URL('accommodations', 'buildings_on_event', vars={'evenid': event.id})}}">{{=T('buildings')}}</a></li>
-    <li><a href="{{=URL('accommodations', 'building_on_event', vars={'builid':builid, 'evenid': event.id})}}">{{=T('building')}}</a></li>
-    <li class="active">{{=T('bedrooms by gender')}}</li>
+    <li class="breadcrumb-item">
+      <a href="{{= URL('events', 'show', vars={'evenid': event.id, 'admin_view':'T'}) }}">{{= T('event') }}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{{= URL('accommodations', 'buildings_on_event', vars={'evenid': event.id}) }}">{{= T('buildings') }}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{{= URL('accommodations', 'building_on_event', vars={'builid':builid, 'evenid': event.id}) }}">{{= T('building') }}</a>
+    </li>
+    <li class="breadcrumb-item active">{{=T('bedrooms')}}</li>
   </ol>
-{{end}}
 
-<div class="row">
-  <div class="col-sm-6">
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+  <div class="row">
+    <div class="col-sm-7">
+
       {{
         floor, floor_txt = 1000, ''
         for n, row in enumerate(rows):
@@ -48,46 +48,43 @@
             floor_txt = '%so. andar' % floor
           pass
       }}
-      <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="heading_{{=n}}">
-          <h4 class="panel-title">
-            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{=n}}" aria-expanded="true" aria-controls="collapseOne">
-              <strong>{{=floor_txt}}</strong>
-            </a>
-          </h4>
-        </div>
-        <div id="collapse_{{=n}}" class="panel-collapse collapse {{='in' if n==0 else ''}}" role="tabpanel" aria-labelledby="headingOne">
-          <div class="panel-body">
-            <div class="row">
-              {{
-                for r in rows:
-                  if r['floor'] == floor:
-              }}
 
-              <div class="col-sm-12 alert alert-info"
-                   onclick="window.open('{{=URL('accommodations', 'bedroom_on_event', vars={'bedroomid':r['id'], 'evenid':event.id, 'gender':gender})}}', '_self')">
-                  <h4>{{=r['name']}}</h4>
-                  {{for m in r['mapp']:}}
-                  <img src="{{=URL('static', 'images/bedicons', args='bed_%s.png' % m)}}" draggable="true">
-                  {{pass}}
+        <h4 class="mt-3"><strong>{{= floor_txt }}</strong></h4>
+
+        {{
+          for r in rows:
+            if r['floor'] == floor:
+        }}
+
+            <div 
+              class="d-inline-flex flex-row flex-wrap"
+              onclick="window.open('{{=URL('accommodations', 'bedroom_on_event', vars={'bedroomid':r['id'], 'evenid':event.id, 'gender':gender})}}', '_self')"
+            >
+              <div class="p-3 border border-secondary mb-1" style="border-radius: 0.5rem;">
+                <h4>{{= r['name'] }}</h4>
+
+                {{ for m in r['mapp']: }}
+                  <img src="{{=URL('static', 'images/bedicons', args='bed_%s.png' % m)}}">
+                {{ pass }}
+
               </div>
-                {{pass}}
-              {{pass}}
             </div>
-          </div>
-        </div>
+            {{ pass }}
+          {{ pass }}
+        {{ pass }}
+      {{ pass }}
+
       </div>
-      {{pass}}
-      {{pass}}
 
-    </div>
+    {{ if session.mapp.unallocateds: }}
+      {{ include 'accommodations/guests_unallocated.html' }}
+    {{ pass }}
   </div>
-  {{if session.mapp.unallocateds:}}
-  {{include 'guests_unallocated.html'}}
-  {{pass}}
-</div>
 
-<script type="text/javascript">
-function goBack() {history.go(-1)};
+{{ end }}
 
-</script>
+{{ block scripts}}
+  <script type="text/javascript">
+    function goBack() {history.go(-1)};
+  </script>
+{{ end }}

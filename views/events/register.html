@@ -72,9 +72,9 @@
           {{ if row.ps: }}
             <span 
               id="staff"
-              data-bs-toggle="tooltip" 
-              data-bs-placement="top" 
-              data-bs-container="body"
+              data-toggle="tooltip" 
+              data-placement="top" 
+              data-container="body"
               title="{{=row.ps}}" style="font-style: italic;"
             >
               obs: {{= row.ps[:30] }}{{ if len(row.ps) > 30: }} ... {{ pass }}
@@ -100,9 +100,9 @@
             {{ if row.description: }}
               <span 
                 class="text-secondary" 
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                data-bs-container="body"
+                data-toggle="tooltip"
+                data-placement="top"
+                data-container="body"
                 title="{{= row.description }}"
               >
                 &nbsp;&nbsp;{{= row.description[:30] }}{{ if len(row.description) > 30: }} ... {{ pass }}

@@ -1,0 +1,167 @@
+{{ if building.male[0]>0: }}
+  <div 
+    class="card mb-3 is_link"
+    onclick="window.open('{{= URL('accommodations', 'bedrooms_by_gender_on_event', vars={'builid':building.id, 'gender': 'M', 'evenid':event.id}) }}', '_self')"
+  >
+    <div class="row g-0">
+      <div class="col-md-3 text-center">
+        <img 
+          class="mt-3"
+          style="width: 5rem;" 
+          src="{{= URL('static', 'images', args='spm.png') }}"
+        >
+        <p class="card-title h5">Alojamentos <br> Masculinos </p>
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <table class="table table-condensed">
+            <tr>
+              <th width="17%">{{=T('bedrooms')}}</th>
+              <th width="33%">{{=T('beds')}}</th>
+              <th width="33%">{{=T('top bunks')}}</th>
+              <th width="17%" class="text-end">{{=T('vacancies')}}</th>
+            </tr>
+            <tr style="font-weight: bold; font-size:12pt;">
+              <td>
+                <span class="badge bg-secondary">
+                  {{=building.male[0]}}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-primary">{{=building.male[1]}}</span>
+                {{if building.male[2]:}}
+                  - <span class="badge bg-danger">{{=building.male[2]}}</span>
+                  = <span class="badge bg-success">{{=building.male[3]}}</span>
+                {{pass}}
+              </td>
+              <td>
+                <span class="badge bg-primary">{{=building.male[4]}}</span>
+                {{if building.male[5]:}}
+                  - <span class="badge bg-danger">{{=building.male[5]}}</span>
+                  = <span class="badge bg-success">{{=building.male[6]}}</span>
+                {{pass}}
+              </td>
+              <td class="text-end">
+                <span class="badge bg-success">
+                  {{=(building.male[3] + building.male[6])}}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{{pass}}
+
+{{ if building.female[0]>0: }}
+  <div 
+    class="card mb-3 is_link"
+    onclick="window.open('{{= URL('accommodations', 'bedrooms_by_gender_on_event', vars={'builid':building.id, 'gender': 'F', 'evenid':event.id}) }}', '_self')"
+  >
+    <div class="row g-0">
+      <div class="col-md-3 text-center">
+        <img 
+          class="mt-3"
+          style="width: 5rem;" 
+          src="{{= URL('static', 'images', args='spf.png') }}"
+        >
+        <p class="card-title h5">Alojamentos <br> Femininos </p>
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <table class="table table-condensed">
+            <tr>
+              <th width="17%">{{=T('bedrooms')}}</th>
+              <th width="33%">{{=T('beds')}}</th>
+              <th width="33%">{{=T('top bunks')}}</th>
+              <th width="17%" class="text-end">{{=T('vacancies')}}</th>
+            </tr>
+            <tr style="font-weight: bold; font-size:12pt;">
+              <td>
+                <span class="badge bg-secondary">
+                  {{=building.female[0]}}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-primary">{{=building.female[1]}}</span>
+                {{if building.female[2]:}}
+                  - <span class="badge bg-danger">{{=building.female[2]}}</span>
+                  = <span class="badge bg-success">{{=building.female[3]}}</span>
+                {{pass}}
+              </td>
+              <td>
+                <span class="badge bg-primary">{{=building.female[4]}}</span>
+                {{if building.female[5]:}}
+                  - <span class="badge bg-danger">{{=building.female[5]}}</span>
+                  = <span class="badge bg-success">{{=building.female[6]}}</span>
+                {{pass}}
+              </td>
+              <td class="text-end">
+                <span class="badge bg-success">
+                  {{=(building.female[3] + building.female[6])}}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{{pass}}
+
+{{ if building.mixed[0]>0: }}
+  <div 
+    class="card mb-3 is_link"
+    onclick="window.open('{{= URL('accommodations', 'bedrooms_by_gender_on_event', vars={'builid':building.id, 'gender': 'X', 'evenid':event.id}) }}', '_self')"
+  >
+    <div class="row g-0">
+      <div class="col-md-3 text-center">
+        <img 
+          class="mt-3"
+          style="width: 5rem;" 
+          src="{{= URL('static', 'images', args='mixed.png') }}"
+        >
+        <p class="card-title h5">Alojamentos <br> Mixtos </p>
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <table class="table table-condensed">
+            <tr>
+              <th width="17%">{{=T('bedrooms')}}</th>
+              <th width="33%">{{=T('beds')}}</th>
+              <th width="33%">{{=T('top bunks')}}</th>
+              <th width="17%" class="text-end">{{=T('vacancies')}}</th>
+            </tr>
+            <tr style="font-weight: bold; font-size:12pt;">
+              <td>
+                <span class="badge bg-secondary">
+                  {{=building.mixed[0]}}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-primary">{{=building.mixed[1]}}</span>
+                {{if building.mixed[2]:}}
+                  - <span class="badge bg-danger">{{=building.mixed[2]}}</span>
+                  = <span class="badge bg-success">{{=building.mixed[3]}}</span>
+                {{pass}}
+              </td>
+              <td>
+                <span class="badge bg-primary">{{=building.mixed[4]}}</span>
+                {{if building.mixed[5]:}}
+                  - <span class="badge bg-danger">{{=building.mixed[5]}}</span>
+                  = <span class="badge bg-success">{{=building.mixed[6]}}</span>
+                {{pass}}
+              </td>
+              <td class="text-end">
+                <span class="badge bg-success">
+                  {{=(building.mixed[3] + building.mixed[6])}}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{{pass}} 

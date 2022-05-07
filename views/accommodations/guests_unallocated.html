@@ -1,0 +1,76 @@
+{{ if guests_unallocated: }}
+  <div class="col-sm-5">
+    <div class="alert alert-dark">
+      <h4>{{= T('guests unallocated') }}
+        {{if auth.has_membership('root') or auth.has_membership('admin'):}}
+          {{
+            try:
+              if bedroom.id:
+                ''
+              pass
+            except:
+          }}
+            <button 
+              type="button"
+              class="btn btn-outline-primary btn-sm float-end"
+              onclick="window.open('{{= URL('accommodations', 'allocate_all') }}', '_self')"
+            >
+              <i class="bi bi-gear"></i>
+              {{= T('allocate all') }}
+            </button>
+          {{ pass }}
+        {{ pass }}
+      </h4>
+      <div class="list-group {{ if len(guests_unallocated) > 7: }}scroll{{ pass }}">
+        {{ for guest in guests_unallocated: }}
+        <span id="{{= guest['id'] }}" class="list-group-item">
+          <strong>{{= shortname(guest['name']) }}</strong>
+
+          {{
+            try:
+              if bedroom.id:
+          }}
+          <button 
+            type="button"
+            class="btn btn-outline-primary btn-sm float-end"
+            onclick="addToBedroom({{= guest['id'] }}, {{= guest['regid'] }})"
+          >
+            <i class="bi bi-plus-lg"></i>
+            {{= T('Add') }}
+          </button>
+          {{  
+              pass
+            except:
+              ''
+            pass
+          }}
+
+          {{
+            badge = 'success'
+            if guest['age'] > 35 and guest['age'] < 60:
+              badge = 'warning'
+            elif guest['age'] >= 60:
+              badge = 'danger'
+            pass
+          }}
+          
+          <span class="badge bg-{{= badge }} float-end" style="margin-right: 10px;">{{ =guest['age'] }}</span>
+          {{ if guest['no_stairs']: }}
+            <img class="float-end" style="margin-right: 10px;" src="{{= URL('static', 'images/bedicons', args='NoStairs.png') }}" width="22px">
+          {{pass}}
+          {{ if guest['no_top_bunk']: }}
+            <img class="float-end" style="margin-right: 10px;" src="{{= URL('static', 'images/bedicons', args='NoTopBunks.png') }}" width="22px">
+          {{ pass }}
+        </span>
+        {{ pass }}
+      </div>
+    </div>
+  </div>
+  <style media="screen">
+    div.scroll {
+      height: 30rem;
+      overflow-x: hidden;
+      overflow-y: scroll;
+    }
+  </style>
+{{ pass }}

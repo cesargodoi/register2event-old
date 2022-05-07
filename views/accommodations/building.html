@@ -1,0 +1,131 @@
+{{ onOff = 'primary' if row.is_active else 'secondary' }}
+<div 
+  id="{{=row.id}}"
+  class="card mb-3 border-{{= onOff }}"
+  onclick="window.open('{{= URL('building_on_event', vars={'builid':row.id, 'evenid':event.id}) }}', '_self')"
+>
+  <div class="row g-0">
+    <div class="col-md-5 text-center text-{{= onOff }} mt-2 d-flex flex-column justify-content-center">
+      <i class="bi bi-building h1"></i>
+      <h5 class="card-title">
+        {{= row.building }}
+      </h5>
+    </div>
+    <div class="col-md-7">
+      <div class="card-body d-flex flex-column justify-content-center">
+        {{ if row.male[0]: }}
+          <div class="row">
+            <div class="col-sm-4 text-end">
+              <strong>{{= T('male') }}</strong>
+            </div>
+            <div 
+              class="col-sm-2 text-end"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-container="body"
+              title="vagas"
+            >
+              <span class="badge bg-primary">{{= row.male[0] }}</span>
+            </div>
+            {{ if row.male[1] != 0: }}
+              <div
+                class="col-sm-2 text-end"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                data-bs-container="body"
+                title="em uso"
+              >
+                <span class="badge bg-danger">{{= row.male[1] }}</span>
+              </div>
+              <div
+                class="col-sm-2 text-end"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                data-bs-container="body"
+                title="disponíveis"
+              >
+                <span class="badge bg-success">{{= row.male[2] }}</span>
+              </div>
+            {{ pass }}
+          </div>
+        {{ pass }}
+          
+        {{ if row.female[0]: }}
+          <div class="row">
+            <div class="col-sm-4 text-end">
+              <strong>{{= T('female') }}</strong>
+            </div>
+            <div 
+              class="col-sm-2 text-end"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-container="body"
+              title="vagas"
+            >
+              <span class="badge bg-primary">{{= row.female[0] }}</span>
+            </div>
+            {{ if row.female[1] != 0: }}
+              <div
+                class="col-sm-2 text-end"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                data-bs-container="body"
+                title="em uso"
+              >
+                <span class="badge bg-danger">{{= row.female[1] }}</span>
+              </div>
+              <div
+                class="col-sm-2 text-end"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                data-bs-container="body"
+                title="disponíveis"
+              >
+                <span class="badge bg-success">{{= row.female[2] }}</span>
+              </div>
+            {{ pass }}
+          </div>
+        {{ pass }}
+          
+        {{ if row.mixed[0]: }}
+          <div class="row">
+            <div class="col-sm-4 text-end">
+              <strong>{{= T('mixed') }}</strong>
+            </div>
+            <div 
+              class="col-sm-2 text-end"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-container="body"
+              title="vagas"
+            >
+              <span class="badge bg-primary">{{= row.mixed[0] }}</span>
+            </div>
+            {{ if row.mixed[1] != 0: }}
+              <div
+                class="col-sm-2 text-end"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                data-bs-container="body"
+                title="em uso"
+              >
+                <span class="badge bg-danger">{{= row.mixed[1] }}</span>
+              </div>
+              <div
+                class="col-sm-2 text-end"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                data-bs-container="body"
+                title="disponíveis"
+              >
+                <span class="badge bg-success">{{= row.mixed[2] }}</span>
+              </div>
+            {{ pass }}
+          </div>
+        {{ pass }}
+  
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

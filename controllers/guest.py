@@ -223,10 +223,9 @@ def delete():
     guest = Guest[guesid]
     if db(Register.guesid == guesid).select():
         guest.update_record(is_active=False)
-        return "window.location = document.referrer;"
     else:
         guest.delete_record()
-        return "window.location = document.referrer;"
+    return "..."
 
 
 #  delete stay  ###############################################################
@@ -234,11 +233,8 @@ def delete():
 @auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
 def delete_stay():
     stay = Guest_Stay[request.args(0)]
-    guesid = stay.guesid
-    if stay:
-        stay.delete_record()
-        db.commit()
-        return "window.location = document.referrer;"
+    stay.delete_record()
+    return "..."
 
 
 #  forms  #####################################################################
