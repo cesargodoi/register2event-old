@@ -1,5 +1,5 @@
 {{ if guests_unallocated: }}
-  <div class="col-sm-5">
+  <div class="col-sm-4">
     <div class="alert alert-dark">
       <h4>{{= T('guests unallocated') }}
         {{if auth.has_membership('root') or auth.has_membership('admin'):}}
@@ -36,7 +36,6 @@
             onclick="addToBedroom({{= guest['id'] }}, {{= guest['regid'] }})"
           >
             <i class="bi bi-plus-lg"></i>
-            {{= T('Add') }}
           </button>
           {{  
               pass

@@ -1,0 +1,73 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{= T('Guests unallocateds') }}</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+  
+  {{ if unallocateds: }}
+    <div class="list-group">
+      {{ for n, guest in enumerate(unallocateds): }}
+        <span id="{{= guest['id'] }}" class="list-group-item">
+          <strong>{{= n+1 }} - {{= shortname(guest['name']) }}</strong>
+
+          {{ if add: }}
+            <button 
+              id="addGuest"
+              type="button"
+              class="btn btn-outline-primary btn-sm float-end"
+              onclick="addToBedroom({{= guest['id'] }}, {{= guest['regid'] }})"
+            >
+              <i class="bi bi-plus-lg"></i>
+            </button>
+          {{ pass }}
+
+          {{
+            badge = 'success'
+            if guest['age'] > 35 and guest['age'] < 60:
+              badge = 'warning'
+            elif guest['age'] >= 60:
+              badge = 'danger'
+            pass
+          }}
+          
+          <span class="badge bg-{{= badge }} float-end" style="margin-right: 10px;">{{ =guest['age'] }}</span>
+          {{ if guest['no_stairs']: }}
+            <img class="float-end" style="margin-right: 10px;" src="{{= URL('static', 'images/bedicons', args='NoStairs.png') }}" width="22px">
+          {{pass}}
+          {{ if guest['no_top_bunk']: }}
+            <img class="float-end" style="margin-right: 10px;" src="{{= URL('static', 'images/bedicons', args='NoTopBunks.png') }}" width="22px">
+          {{ pass }}
+        </span>
+      {{ pass }}
+    </div>
+
+  {{ pass }}
+
+    
+
+</div>
+<div class="modal-footer">
+  <button 
+    type="button"
+    class="btn btn-outline-primary"
+    onclick="window.open('{{= URL('accommodations', 'allocate_all') }}', '_self')"
+  >
+    <i class="bi bi-gear"></i>
+    {{= T('Allocate all') }}
+  </button>
+  <button 
+    type="button" 
+    class="btn btn-outline-secondary" 
+    data-bs-dismiss="modal"
+  >
+  <i class="bi bi-x-lg"></i>
+    {{= T('Close') }}
+  </button>
+</div>
+
+<style type="text/css">
+.modal-body {
+  height: 40vh;
+  overflow-y: auto;
+}
+</style>

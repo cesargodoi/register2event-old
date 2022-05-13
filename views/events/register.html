@@ -134,9 +134,11 @@
               <button 
                 type="button" 
                 class="btn btn-outline-success" 
-                data-toggle="modal" 
-                data-target="#confirm"
-                onclick="getBedroom({{= row.id }},{{= event.id }});"
+                data-bs-toggle="modal" 
+                data-bs-target="#confirm"              
+                hx-trigger="click"
+                hx-get="{{= URL('accommodations', 'guest_bedroom', vars={'evenid': event.id, 'guesid': row.guesid}) }}" 
+                hx-target="#modalContent" 
               >
                 <i class="bi bi-building"></i>
               </button>

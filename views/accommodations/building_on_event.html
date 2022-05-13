@@ -6,6 +6,23 @@
   </h3>
 {{end}}
 
+{{ block header_menu }}
+  {{ if unalloc: }}
+    <button 
+      type="button"
+      class="btn btn-outline-primary float-end"
+      data-bs-toggle="modal" 
+      data-bs-target="#confirm"
+      hx-trigger="click"
+      hx-get="{{= URL('accommodations', 'get_unallocateds', vars={"gender": "X", "add": ""}) }}" 
+      hx-target="#modalContent" 
+    >
+      <i class="bi bi-list-ol"></i>
+      {{= T('Manage unallocateds') }}
+    </button>
+{{ pass }}
+{{ end }}
+
 {{block content}}
   <!-- breadcrumb navigator -->
   <ol class="breadcrumb">
@@ -18,16 +35,24 @@
     <li class="breadcrumb-item active">{{= T('building') }}</li>
   </ol>
 
-<div class="row">
-  <div class="col-sm-7">
+{{ if building: }}
+  <div class="col-sm-8 d-flex flex-row flex-wrap">
     {{ include 'accommodations/bedrooms.html' }}
   </div>
-  {{if session.mapp.unallocateds:}}
-    {{include 'accommodations/guests_unallocated.html'}}
-  {{pass}}
-</div>
+{{ else:}}
+  <div class="alert alert-warning">
+    Sem QUARTOS (por gênero) pra mostrar aqui.
+  </div>
+{{ pass }}
 
-<div id="confirm" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"></div>
+<!-- modal confirm -->
+<div class="modal fade" id="confirm" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog  modal-dialog-centered">
+    <div class="modal-content" id="modalContent">
+      <!-- aqui vai o corpo da modal -->
+    </div>
+  </div>
+</div>
 
 {{end}}
 

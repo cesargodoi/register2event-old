@@ -15,6 +15,23 @@
   </h3>
 {{ end }}
 
+{{ block header_menu }}
+  {{ if unalloc: }}
+    <button 
+      type="button"
+      class="btn btn-outline-primary float-end"
+      data-bs-toggle="modal" 
+      data-bs-target="#confirm"
+      hx-trigger="click"
+      hx-get="{{= URL('accommodations', 'get_unallocateds', vars={"gender": gender, "add": ""}) }}" 
+      hx-target="#modalContent" 
+    >
+      <i class="bi bi-list-ol"></i>
+      {{= T('Manage unallocateds') }}
+    </button>
+  {{ pass }}
+{{ end }}
+
 {{ block content }}
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
@@ -30,55 +47,60 @@
   </ol>
 
 
-  <div class="row">
-    <div class="col-sm-7">
+  {{ if rows: }}
+    {{
+      floor, floor_txt = 1000, ''
+      for n, row in enumerate(rows):
+    }}
+    {{
+      if row['floor'] != floor:
+        floor = row['floor']
+        if floor < 0:
+          floor_txt = 'subsolo %s' % abs(floor)
+        elif floor == 0:
+          floor_txt = 'terreo'
+        else:
+          floor_txt = '%so. andar' % floor
+        pass
+    }}
+
+      <h4 class="mt-3"><strong>{{= floor_txt }}</strong></h4>
 
       {{
-        floor, floor_txt = 1000, ''
-        for n, row in enumerate(rows):
-      }}
-      {{
-        if row['floor'] != floor:
-          floor = row['floor']
-          if floor < 0:
-            floor_txt = 'subsolo %s' % abs(floor)
-          elif floor == 0:
-            floor_txt = 'terreo'
-          else:
-            floor_txt = '%so. andar' % floor
-          pass
+        for r in rows:
+          if r['floor'] == floor:
       }}
 
-        <h4 class="mt-3"><strong>{{= floor_txt }}</strong></h4>
+          <div 
+            class="d-inline-flex flex-row flex-wrap"
+            onclick="window.open('{{=URL('accommodations', 'bedroom_on_event', vars={'bedroomid':r['id'], 'evenid':event.id, 'gender':gender})}}', '_self')"
+          >
+            <div class="p-3 border border-secondary mb-1" style="border-radius: 0.5rem;">
+              <h4>{{= r['name'] }}</h4>
 
-        {{
-          for r in rows:
-            if r['floor'] == floor:
-        }}
+              {{ for m in r['mapp']: }}
+                <img src="{{=URL('static', 'images/bedicons', args='bed_%s.png' % m)}}">
+              {{ pass }}
 
-            <div 
-              class="d-inline-flex flex-row flex-wrap"
-              onclick="window.open('{{=URL('accommodations', 'bedroom_on_event', vars={'bedroomid':r['id'], 'evenid':event.id, 'gender':gender})}}', '_self')"
-            >
-              <div class="p-3 border border-secondary mb-1" style="border-radius: 0.5rem;">
-                <h4>{{= r['name'] }}</h4>
-
-                {{ for m in r['mapp']: }}
-                  <img src="{{=URL('static', 'images/bedicons', args='bed_%s.png' % m)}}">
-                {{ pass }}
-
-              </div>
             </div>
-            {{ pass }}
+          </div>
           {{ pass }}
         {{ pass }}
       {{ pass }}
-
-      </div>
-
-    {{ if session.mapp.unallocateds: }}
-      {{ include 'accommodations/guests_unallocated.html' }}
     {{ pass }}
+  {{ else: }}
+    <div class="alert alert-warning">
+      Sem QUARTOS pra mostrar aqui.
+    </div>
+  {{ pass }}
+
+  <!-- modal confirm -->
+  <div class="modal fade" id="confirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+      <div class="modal-content" id="modalContent">
+        <!-- aqui vai o corpo da modal -->
+      </div>
+    </div>
   </div>
 
 {{ end }}

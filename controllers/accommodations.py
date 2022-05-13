@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
-
+from xml.dom.minidom import Element
 from gluon.custom_import import track_changes
 import Mapp_Utils as Mapp
+from datetime import date
 
 track_changes(True)
 
 
-# buildings on event
+#  buildings on event  ########################################################
 @auth.requires_login()
 @auth.requires(
     auth.has_membership("root")
@@ -32,17 +32,16 @@ def buildings_on_event():
     Mapp.compare_mapping_and_bedrooms(bedrooms)
     for bedroom in bedrooms:
         bedroom.mapp = Mapp.add_mapp(bedroom.id)
-
     # making buildings
     buildings = db(
-        Building.id.belongs(set([b.builid for b in bedrooms]))
+        Building.id.belongs(set([bed.builid for bed in bedrooms]))
     ).select()
     for building in buildings:
         building.male = Mapp.gen_mapp_buildings(
             [
-                b
-                for b in bedrooms
-                if b.gender == "M" and b.builid == building.id
+                bed
+                for bed in bedrooms
+                if bed.gender == "M" and bed.builid == building.id
             ]
         )
         building.female = Mapp.gen_mapp_buildings(
@@ -59,13 +58,12 @@ def buildings_on_event():
                 if b.gender == "X" and b.builid == building.id
             ]
         )
-    _unallocated = session.mapp.unallocateds
-    _unallocated.sort(key=lambda r: r["name"])
+    unalloc = True if len(session.mapp.unallocateds) else False
 
-    return dict(rows=buildings, guests_unallocated=_unallocated, event=event)
+    return dict(rows=buildings, event=event, unalloc=unalloc)
 
 
-# building on event
+#  building on event  #########################################################
 @auth.requires_login()
 @auth.requires(
     auth.has_membership("root")
@@ -96,14 +94,12 @@ def building_on_event():
     building.mixed = Mapp.gen_mapp_building(
         [b for b in bedrooms if b.gender == "X"]
     )
-    return dict(
-        building=building,
-        guests_unallocated=session.mapp.unallocateds,
-        event=event,
-    )
+    unalloc = True if len(session.mapp.unallocateds) else False
+
+    return dict(building=building, event=event, unalloc=unalloc)
 
 
-# List (by gender)
+#  List (by gender)  ##########################################################
 @auth.requires_login()
 @auth.requires(
     auth.has_membership("root")
@@ -111,14 +107,11 @@ def building_on_event():
     or auth.has_membership("office")
 )
 def bedrooms_by_gender_on_event():
-    print("-------- bedrooms_by_gender_on_event --------")
     # verifying if session.mapp exists
     if not session.mapp:
         redirect(URL("events", "show", vars={"evenid": request.vars.evenid}))
     # geting event to render details
     event = Events[request.vars.evenid]
-    # makying a list of guests unallocated by gender
-    _unallocateds = Mapp.unallocateds_by_gender(request.vars.gender)
     # get bedrooms
     _bedrooms = db(
         (Bedroom.id.belongs(session.mapp.ids_in_mapping))
@@ -132,17 +125,20 @@ def bedrooms_by_gender_on_event():
             bedroom, Mapp.add_mapp(bedroom.id)
         )
         bedrooms.append(Mapp.icons_mapp(bedroom))
+    # verify unallocates
+    unallocateds = Mapp.unallocateds_by_gender(request.vars.gender)
+    unalloc = True if len(unallocateds) else False
 
     return dict(
         rows=bedrooms,
-        guests_unallocated=_unallocateds,
         event=event,
         gender=request.vars.gender,
         builid=_bedrooms[0].builid,
+        unalloc=unalloc,
     )
 
 
-# Read
+#  bedroom on event  ##########################################################
 @auth.requires_login()
 @auth.requires(
     auth.has_membership("root")
@@ -150,15 +146,11 @@ def bedrooms_by_gender_on_event():
     or auth.has_membership("office")
 )
 def bedroom_on_event():
-    from datetime import date
-
     # verifying if session.mapp exists
     if not session.mapp:
         redirect(URL("events", "show", vars={"evenid": request.vars.evenid}))
     # geting event to render details
     event = Events[request.vars.evenid]
-    # makying a list of guests unallocated by gender
-    _unallocateds = Mapp.unallocateds_by_gender(request.vars.gender)
     # get mapp
     mapp = [
         m for m in session.mapp.mapping if m[0] == int(request.vars.bedroomid)
@@ -180,60 +172,31 @@ def bedroom_on_event():
         )
         for r in db(Register.guesid.belongs(_ids)).select()
     }
+    # verify unallocates
+    unallocateds = Mapp.unallocateds_by_gender(request.vars.gender)
+    unalloc = True if len(unallocateds) else False
+
     return dict(
         bedroom=bedroom,
         guests=guests,
-        guests_unallocated=_unallocateds,
         event=event,
         building=[bedroom.builid, bedroom.builid.building],
+        unalloc=unalloc,
     )
 
 
-# add or remove from accommodations
-@auth.requires_login()
-@auth.requires(
-    auth.has_membership("root")
-    or auth.has_membership("admin")
-    or auth.has_membership("office")
-)
-def add_to_bedroom():
-    # receiving the variables
-    evenid = int(request.vars.evenid)
-    event_type = Events[evenid].activity.activity_type
-    guesid = int(request.vars.guesid)
+#  get unallocateds  ##########################################################
+def get_unallocateds():
+    response.view = "accommodations/modal_unallocateds.html"
     gender = request.vars.gender
-    bedroomid = int(request.vars.bedroomid)
-    regid = int(request.vars.regid)
-    if request.vars.fromguest:
-        try_to_allocate = Mapp.choose_a_bed(
-            evenid, guesid, bedroomid, regid, event_type, from_mapp=False
-        )
-    else:
-        try_to_allocate = Mapp.choose_a_bed(
-            evenid, guesid, bedroomid, regid, event_type
-        )
-    if try_to_allocate:
-        if request.vars.fromguest:
-            redirect(
-                URL(
-                    "events",
-                    "show",
-                    vars={"evenid": evenid, "admin_view": "T"},
-                )
-            )
-        else:
-            return 'location.href="%s";' % URL(
-                "bedroom_on_event",
-                vars={
-                    "bedroomid": bedroomid,
-                    "evenid": evenid,
-                    "gender": gender,
-                },
-            )
-    else:
-        return 'window.alert("crowded bedroom");'
+    add = True if request.vars.add else False
+    unallocateds = Mapp.unallocateds_by_gender(gender)
+    unallocateds.sort(key=lambda r: r["name"])
+
+    return dict(add=add, unallocateds=unallocateds)
 
 
+#  allocate all  ##############################################################
 @auth.requires_login()
 @auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
 def allocate_all():
@@ -256,14 +219,14 @@ def allocate_all():
         if guest["gender"] == "M":
             if guest["no_stairs"]:
                 _bedrooms = [b for b in _no_stairs if b[3] == "M"]
-            elif guest["no_top_bunk"]:
+            elif guest["no_top_bunk"] or guest["age"] >= 60:
                 _bedrooms = [b for b in _no_top_bunk if b[3] == "M"]
             else:
                 _bedrooms = [b for b in _no_problems if b[3] == "M"]
         elif guest["gender"] == "F":
             if guest["no_stairs"]:
                 _bedrooms = [b for b in _no_stairs if b[3] == "F"]
-            elif guest["no_top_bunk"]:
+            elif guest["no_top_bunk"] or guest["age"] >= 60:
                 _bedrooms = [b for b in _no_top_bunk if b[3] == "F"]
             else:
                 _bedrooms = [b for b in _no_problems if b[3] == "F"]
@@ -287,6 +250,7 @@ def allocate_all():
         else:
             unallocateds.append([guest["id"], guest["name"]])
     mapping.update_record(bedrooms=session.mapp.mapping)
+
     return dict(
         evenid=evenid,
         allocateds=sorted(allocateds, key=lambda x: x[1]),
@@ -294,6 +258,48 @@ def allocate_all():
     )
 
 
+#  add to bedroom  ############################################################
+@auth.requires_login()
+@auth.requires(
+    auth.has_membership("root")
+    or auth.has_membership("admin")
+    or auth.has_membership("office")
+)
+def add_to_bedroom():
+    # receiving the variables
+    regid = int(request.vars.regid)
+    evenid = int(request.vars.evenid)
+    guesid = int(request.vars.guesid)
+    gender = request.vars.gender
+    bedroomid = int(request.vars.bedroomid)
+    from_mapp = False if request.vars.fromguest else True
+    # try to allocate
+    try_to_allocate = Mapp.choose_a_bed(
+        evenid, guesid, bedroomid, regid, from_mapp
+    )
+
+    if try_to_allocate:
+        url = (
+            URL("events", "show", vars={"evenid": evenid, "admin_view": "T"})
+            if request.vars.fromguest
+            else URL(
+                "bedroom_on_event",
+                vars={
+                    "bedroomid": bedroomid,
+                    "evenid": evenid,
+                    "gender": gender,
+                },
+            )
+        )
+        if request.vars.fromguest:
+            redirect(url)
+        else:
+            return f"location.href='{url}'"
+    else:
+        return "window.alert('crowded bedroom');"
+
+
+#  remove from bedroom  #######################################################
 @auth.requires_login()
 @auth.requires(
     auth.has_membership("root")
@@ -343,10 +349,9 @@ def remove_from_bedroom():
         guest_stay.update_record(bedroom_alt=None)
     else:
         guest_stay.update_record(bedroom=None)
+
     if request.vars.fromguest:
-        return 'location.href="%s";' % URL(
-            "events", "show", vars={"evenid": evenid, "admin_view": "T"}
-        )
+        return "..."
     else:
         # re-init the Mapp
         Mapp.init_mapp(
@@ -354,208 +359,100 @@ def remove_from_bedroom():
             centid=session.mapp.centid,
             cent_repr=session.mapp.cent_repr,
         )
-        return 'location.href="%s";' % URL(
-            "bedroom_on_event",
-            vars={
-                "bedroomid": bedroomid,
-                "evenid": evenid,
-                "gender": register.guesid.gender,
-            },
+        return "location.href='{}';".format(
+            URL(
+                "bedroom_on_event",
+                vars={
+                    "bedroomid": bedroomid,
+                    "evenid": evenid,
+                    "gender": register.guesid.gender,
+                },
+            )
         )
 
 
+#  guest bedroom  ####
 @auth.requires_login()
 @auth.requires(auth.has_membership("root") or auth.has_membership("admin"))
 def guest_bedroom():
-    from datetime import date
+    # get vars
+    evenid = int(request.vars.evenid)
+    guesid = int(request.vars.guesid)
+    # try to get the guest bedroom
+    bedroom = get_bedroom(evenid, guesid)
 
-    bedroom = get_bedroom(request.vars.evenid, request.vars.guesid)
     if bedroom:
-        _ids = filter((lambda x: x != 0), (bedroom[1] + bedroom[2]))
-        guests = {
-            int(r.guesid): dict(
-                name=shortname(r.guesid.name),
-                no_stairs=r.no_stairs,
-                no_top_bunk=r.no_top_bunk,
-                age=(date.today() - r.guesid.birthday).days // 365
-                if r.guesid.birthday
-                else 0,
-            )
-            for r in db(Register.guesid.belongs(_ids)).select()
-        }
-        _building = Bedroom[bedroom[0]].builid.building
-        title = "%s - %s" % (_building, bedroom[5].encode("utf-8"))
+        response.view = "accommodations/modal_guest_on_bedroom.html"
+        # set title of report
+        title = "{} - {}".format(
+            Bedroom[bedroom[0]].builid.building, bedroom[5]
+        )
+        # select guests in bedroom
+        _ids = [id for id in bedroom[1] + bedroom[2] if id != 0]
+        guests = {g.id: g.name for g in db(Guest.id.belongs(_ids)).select()}
+        # adjust guests on beds or tops
         beds, tops = [], []
-        for b in bedroom[1]:
-            if b == 0:
-                bed = [
-                    IMG(
-                        _src=URL(
-                            "static", "images/bedicons", args="bed_BY.png"
-                        ),
-                        _alt="cama de baixo",
-                        _width="22px",
-                    ),
-                    "livre",
-                    "",
-                    "",
-                ]
-            else:
-                if guests[b]["age"] > 35 and guests[b]["age"] < 60:
-                    label = "label label-warning"
-                elif guests[b]["age"] >= 60:
-                    label = "label label-danger"
-                else:
-                    label = "label label-success"
-                bed = [
-                    IMG(
-                        _src=URL(
-                            "static", "images/bedicons", args="bed_BN.png"
-                        ),
-                        _alt="cama de baixo",
-                        _width="22px",
-                    ),
-                    DIV(
-                        guests[b]["name"],
-                        XML("&nbsp;&nbsp;"),
-                        A(
-                            "remover",
-                            _type="button",
-                            _class="btn btn-danger btn-xs",
-                            _href="#",
-                            _onclick="removeFromBedroom(%s, %s, %s)"
-                            % (
-                                request.vars.evenid,
-                                request.vars.guesid,
-                                bedroom[0],
-                            ),
-                            **{"_data-dismiss": "modal"}
-                        )
-                        if b == int(request.vars.guesid)
-                        else "",
-                    ),
-                    SPAN(guests[b]["age"], _class=label),
-                ]
-            beds.append(bed)
-        for t in bedroom[2]:
-            if t == 0:
-                top = [
-                    IMG(
-                        _src=URL(
-                            "static", "images/bedicons", args="bed_TY.png"
-                        ),
-                        _alt="cama de cima",
-                        _width="22px",
-                    ),
-                    "livre",
-                    "",
-                ]
-            else:
-                if guests[t]["age"] > 35 and guests[t]["age"] < 60:
-                    label = "label label-warning"
-                elif guests[t]["age"] >= 60:
-                    label = "label label-danger"
-                else:
-                    label = "label label-success"
-                top = [
-                    IMG(
-                        _src=URL(
-                            "static", "images/bedicons", args="bed_TN.png"
-                        ),
-                        _alt="cama de cima",
-                        _width="22px",
-                    ),
-                    DIV(
-                        guests[t]["name"],
-                        XML("&nbsp;&nbsp;"),
-                        A(
-                            "remover",
-                            _type="button",
-                            _class="btn btn-danger btn-xs",
-                            _href="#",
-                            _onclick="removeFromBedroom(%s, %s, %s)"
-                            % (
-                                request.vars.evenid,
-                                request.vars.guesid,
-                                bedroom[0],
-                            ),
-                            **{"_data-dismiss": "modal"}
-                        )
-                        if t == int(request.vars.guesid)
-                        else "",
-                    ),
-                    SPAN(guests[t]["age"], _class=label),
-                ]
-            tops.append(top)
-        return DIV(
-            DIV(
-                DIV(
-                    A(
-                        SPAN(XML("&times;"), **{"_aria-hidden": "true"}),
-                        _type="button",
-                        _class="close",
-                        **{"_data-dismiss": "modal", "_aria-label": "Close"}
-                    ),
-                    H4(title, _class="modal-title"),
-                    _class="modal-header",
-                ),
-                DIV(
-                    TABLE(
-                        TR(TH("camas de baixo", _colspan="4")),
-                        *[TR(*bed) for bed in beds],
-                        _class="table table-condenced"
-                    ),
-                    TABLE(
-                        TR(TH("camas de cima", _colspan="3")),
-                        *[TR(*top) for top in tops],
-                        _class="table table-condenced"
-                    ),
-                    _class="modal-body",
-                ),
-                _class="modal-content",
-            ),
-            _class="modal-dialog",
-            _role="document",
+        for gid in bedroom[1]:
+            beds.append((gid, guests[gid]) if gid != 0 else 0)
+
+        for gid in bedroom[2]:
+            tops.append((gid, guests[gid]) if gid != 0 else 0)
+
+        return dict(
+            title=title,
+            beds=beds,
+            tops=tops,
+            evenid=evenid,
+            guesid=guesid,
+            bedroomid=bedroom[0],
         )
+
     else:
-        mapping = (
-            db(Bedrooms_mapping.evenid == int(request.vars.evenid))
-            .select()
-            .first()
-        )
+        # select the view
+        response.view = "accommodations/modal_guest_to_bedroom.html"
+        # get title
+        title = T("Select a bedroom")
+        # get mapping
+        mapping = db(Bedrooms_mapping.evenid == int(evenid)).select().first()
+        # get register
         register = (
             db(
-                (Register.guesid == int(request.vars.guesid))
-                & (Register.evenid == int(request.vars.evenid))
+                (Register.guesid == guesid)
+                & (Register.evenid == evenid)
                 & (Register.is_active == True)
                 & (Register.credit == False)
             )
             .select()
             .first()
         )
+        # select possible bedrooms by gender
         if register.guesid.gender == "M":
-            get_gender = [
-                m
-                for m in mapping["bedrooms"]
-                if m[3] in ("M", "X") and 0 in (m[1] + m[2])
+            bed_per_gender = [
+                bed
+                for bed in mapping["bedrooms"]
+                if bed[3] in ("M", "X") and 0 in (bed[1] + bed[2])
             ]
         else:
-            get_gender = [
-                m
-                for m in mapping["bedrooms"]
-                if m[3] in ("F", "X") and 0 in (m[1] + m[2])
+            bed_per_gender = [
+                bed
+                for bed in mapping["bedrooms"]
+                if bed[3] in ("F", "X") and 0 in (bed[1] + bed[2])
             ]
+        # and by restrictions
         if register.no_top_bunk and register.no_stairs:
-            restricts = [m for m in get_gender if m[4] == 0 and 0 in m[1]]
-        elif register.no_top_bunk:
-            restricts = [m for m in get_gender if 0 in m[1]]
+            possible_bedrooms = [
+                bed for bed in bed_per_gender if bed[4] == 0 and 0 in bed[1]
+            ]
+        elif register.no_top_bunk or get_age(register.guesid.birthday) >= 60:
+            possible_bedrooms = [bed for bed in bed_per_gender if 0 in bed[1]]
         else:
-            restricts = get_gender
-        ids = [r[0] for r in restricts]
-        _vacancies = db(Bedroom.id.belongs(ids)).select()
+            possible_bedrooms = bed_per_gender
+        # select vacancies
+        pbids = [pb[0] for pb in possible_bedrooms]  # possible bedrooms ids
+        _vacancies = db(Bedroom.id.belongs(pbids)).select()
         VACANCIES = dict()
         for vac in _vacancies:
-            VACANCIES[int(vac.id)] = "%s(%s) - %s(%s) [%dB %dT]" % (
+            VACANCIES[int(vac.id)] = "{}({}) - {}({}) [{}B {}T]".format(
                 vac.builid.building,
                 vac.builid.center.shortname,
                 vac.bedroom,
@@ -563,39 +460,29 @@ def guest_bedroom():
                 vac.beds,
                 vac.top_bunks,
             )
-
+        # generate a form to show vacancies
         form = SQLFORM.factory(
             Field(
-                "bedroomid", requires=IS_IN_SET(VACANCIES), label=T("bedroom")
+                "bedroomid",
+                requires=IS_IN_SET(VACANCIES),
+                label=T("select a bedroom"),
             ),
             hidden=dict(
-                evenid=request.vars.evenid,
-                guesid=request.vars.guesid,
+                evenid=evenid,
+                guesid=guesid,
                 gender=register.guesid.gender,
                 regid=register.id,
                 fromguest=True,
             ),
+            formstyle="bootstrap4_stacked",
             submit_button="select",
         )
-        form.element(_type="submit")["_class"] = "btn btn-primary btn-lg"
+        form.element(_type="submit")[
+            "_class"
+        ] = "btn btn-outline-primary float-end mt-2"
+        form.element("form")["_class"] = ""
         form.element("form")["_action"] = URL(
             "accommodations", "add_to_bedroom"
         )
-        return DIV(
-            DIV(
-                DIV(
-                    A(
-                        SPAN(XML("&times;"), **{"_aria-hidden": "true"}),
-                        _type="button",
-                        _class="close",
-                        **{"_data-dismiss": "modal", "_aria-label": "Close"}
-                    ),
-                    H4("Quartos disponíveis", _class="modal-title"),
-                    _class="modal-header",
-                ),
-                DIV(form, _class="modal-body"),
-                _class="modal-content",
-            ),
-            _class="modal-dialog",
-            _role="document",
-        )
+
+        return dict(title=title, form=form)

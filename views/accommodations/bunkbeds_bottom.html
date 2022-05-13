@@ -1,0 +1,39 @@
+{{ if i > 0: }}
+  <tr>
+    <td width="30px">
+      <img src="{{= URL('static', 'images/bedicons', args='bed_BN.png') }}"><br>
+    </td>
+    <td>
+      {{= guests[i]['name'] }}
+      <button 
+        type="button"
+        class="btn btn-outline-danger btn-sm float-end"
+        onclick="removeFromBedroom({{= i }})"
+      >
+        <i class="bi bi-trash"></i>
+      </button>
+      {{
+        label = 'success'
+        if guests[i]['age']>35 and guests[i]['age']<60:
+          label = 'warning'
+        elif guests[i]['age']>=60:
+          label = 'danger'
+        pass
+      }}
+      <span class="badge bg-{{=label}} float-end me-2">{{= guests[i]['age'] }}</span>
+      {{ if guests[i]['no_stairs']: }}
+        <img class="float-end me-2" src="{{= URL('static', 'images/bedicons', args='NoStairs.png') }}" width="22px">
+      {{ pass }}
+      {{ if guests[i]['no_top_bunk']: }}
+        <img class="float-end me-2" src="{{= URL('static', 'images/bedicons', args='NoTopBunks.png') }}" width="22px">
+      {{ pass }}
+    </td>
+  </tr>
+{{else:}}
+  <tr>
+    <td width="30px">
+      <img src="{{= URL('static', 'images/bedicons', args='bed_BY.png') }}" draggable="true">
+    </td>
+    <td>{{= T('ready to use') }}</td>
+  </tr>
+{{pass}}

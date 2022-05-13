@@ -132,8 +132,11 @@
   //   ajax(`{{=URL('accommodations', 'guest_bedroom')}}?evenid=${evenid}&guesid=${guesid}`, [], 'confirm');
   // };
 
-  // function removeFromBedroom(evenid, guesid, bedroomid) {
-  //   ajax(`{{=URL('accommodations', 'remove_from_bedroom')}}?evenid=${evenid}&guesid=${guesid}&bedroomid=${bedroomid}&fromguest=T`, [], ':eval');
-  // };
+  function removeFromBedroom(evenid, guesid, bedroomid) {
+    url = `{{=URL('accommodations', 'remove_from_bedroom')}}?evenid=${evenid}&guesid=${guesid}&bedroomid=${bedroomid}&fromguest=T`
+    htmx.ajax('GET', url, "#remGuest").then(() => {
+      document.location.reload(true);
+    });
+  };
 </script>
 {{ end }}

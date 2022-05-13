@@ -5,16 +5,24 @@
     &nbsp;&nbsp;
     <small class="text-secondary">{{= '{}({})'.format(event.activity.activity, event.center.shortname) }}</small>
   </h3>
-{{end}}
+{{ end }}
 
 {{ block header_menu }}
-  {{ if session.mapp.difference and event.status == 'OPN': }}
-    <span class="pull-right">
-      {{= T('there is a difference between bedrooms and the mapping') }}
-      <strong><a href="#" onclick="updateMapping({{= event.id }});">{{= T('fix it') }}?</a></strong>
-    </span>
-  {{ pass}}
-{{ end}}
+  {{ if unalloc: }}
+    <button 
+      type="button"
+      class="btn btn-outline-primary float-end"
+      data-bs-toggle="modal" 
+      data-bs-target="#confirm"
+      hx-trigger="click"
+      hx-get="{{= URL('accommodations', 'get_unallocateds', vars={"gender": "X", "add": ""}) }}" 
+      hx-target="#modalContent" 
+    >
+      <i class="bi bi-list-ol"></i>
+      {{= T('Manage unallocateds') }}
+    </button>
+  {{ pass }}
+{{ end }}
 
 {{ block content }}
   <!-- breadcrumb navigator -->
@@ -26,18 +34,39 @@
   </ol>
   <hr>
 
+  {{ if session.mapp.difference and event.status == 'OPN': }}
+    <div class="alert alert-warning">
+      {{= T('there is a difference between bedrooms and the mapping') }}
+      &nbsp;&nbsp;
+      <strong>
+        <a href="#" onclick="updateMapping({{= event.id }});">
+          {{= T('do you want to fix this') }}?
+        </a>
+      </strong>
+    </div>
+  {{ pass }}
+
   {{ if rows:}}
-  <div class="row">
-    <div class="col-sm-7">
+    <div class="d-flex flex-row flex-wrap">
       {{ for row in rows: }}
         {{ include 'accommodations/building.html' }}
       {{ pass}}
     </div>
-    {{ if session.mapp.unallocateds: }}
-      {{ include 'accommodations/guests_unallocated.html' }}
-    {{ pass }}
-  </div>
+  {{ else:}}
+    <div class="alert alert-warning">
+      Sem PRÉDIOS pra mostrar aqui.
+    </div>
   {{ pass }}
+
+  <!-- modal confirm -->
+  <div class="modal fade" id="confirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+      <div class="modal-content" id="modalContent">
+        <!-- aqui vai o corpo da modal -->
+      </div>
+    </div>
+  </div>
+
 {{ end }}
 
 

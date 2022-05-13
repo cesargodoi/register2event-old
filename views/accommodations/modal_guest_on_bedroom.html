@@ -1,0 +1,76 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{= title }}</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+  {{ if beds: }}
+    <h5> {{= T('Bottom beds') }}</h5>
+    <table class="table table-sm table-hover">
+      {{ for b in beds: }}
+        {{ if b != 0: }}
+          <tr>
+            <td width="30px">
+              <img src="{{= URL('static', 'images/bedicons', args='bed_BN.png') }}"><br>
+            </td>
+            <td>
+              {{= b[1] }}
+              {{ if b[0] == guesid: }}
+                <button 
+                  id="remGuest"
+                  type="button"
+                  class="btn btn-outline-danger btn-sm float-end"
+                  onclick="removeFromBedroom({{= evenid }}, {{= guesid }}, {{= bedroomid }})"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              {{ pass }}
+            </td>
+          </tr>
+        {{ else: }}
+          <tr>
+            <td width="30px">
+              <img src="{{= URL('static', 'images/bedicons', args='bed_BY.png') }}" draggable="true">
+            </td>
+            <td>{{= T('ready to use') }}</td>
+          </tr>
+        {{ pass }}
+      {{ pass }}
+    </table>
+  {{ pass }}
+
+  {{ if tops: }}
+    <h5> {{= T('Upper beds') }}</h5>
+    <table class="table table-sm table-hover">
+      {{ for t in tops: }}
+        {{ if t != 0: }}
+          <tr>
+            <td width="30px">
+              <img src="{{= URL('static', 'images/bedicons', args='bed_BN.png') }}"><br>
+            </td>
+            <td>
+              {{= t[1] }}
+              {{ if t[0] == guesid: }}
+                <button 
+                  id="remGuest"
+                  type="button"
+                  class="btn btn-outline-danger btn-sm float-end"
+                  onclick="removeFromBedroom({{= evenid }}, {{= guesid }}, {{= bedroomid }})"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              {{ pass }}
+            </td>
+          </tr>
+        {{ else: }}
+          <tr>
+            <td width="30px">
+              <img src="{{= URL('static', 'images/bedicons', args='bed_BY.png') }}" draggable="true">
+            </td>
+            <td>{{= T('ready to use') }}</td>
+          </tr>
+        {{ pass }}
+      {{ pass }}
+    </table>
+  {{ pass }}
+
+</div>

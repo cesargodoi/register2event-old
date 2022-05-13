@@ -288,13 +288,27 @@ def get_bedrooms(evenid):
 
 def get_bedroom(evenid, guesid):
     map = db(Bedrooms_mapping.evenid == evenid).select().first()
+    bedroom = None
     for _bedroom in map.bedrooms:
-        if int(guesid) in _bedroom[1] + _bedroom[2]:
+        if guesid in _bedroom[1] + _bedroom[2]:
             bedroom = _bedroom
             break
-        else:
-            bedroom = None
+
     return bedroom
+
+
+def get_age(date):
+    return (date.today() - date).days // 365 if date else 0
+
+
+def select_bed_type(no_stairs, no_top_bunk, age):
+    if no_stairs and no_top_bunk:
+        bed_type = "bed"
+    elif no_top_bunk or age >= 60:
+        bed_type = "bed"
+    else:
+        bed_type = "top"
+    return bed_type
 
 
 def gen_of_pagination(query, page=1, paginate=10):
